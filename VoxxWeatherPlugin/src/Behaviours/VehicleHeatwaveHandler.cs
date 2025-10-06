@@ -58,7 +58,7 @@ namespace VoxxWeatherPlugin.Behaviours
             }
         }
 
-        [ClientRpc]
+        [Rpc(SendTo.ClientsAndHost)]
         private void PlayTurbulenceSoundClientRpc()
         {
             if (turbSoundCoroutine == null)
@@ -67,7 +67,7 @@ namespace VoxxWeatherPlugin.Behaviours
             }
         }
 
-        [ClientRpc]
+        [Rpc(SendTo.ClientsAndHost)]
         private void StopTurbulenceSoundClientRpc()
         {
             if (turbSoundCoroutine != null)

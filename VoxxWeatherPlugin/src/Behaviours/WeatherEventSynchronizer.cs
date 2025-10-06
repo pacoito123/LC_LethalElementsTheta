@@ -28,7 +28,7 @@ namespace VoxxWeatherPlugin.Behaviours
             }
         }
 
-        [ClientRpc]
+        [Rpc(SendTo.ClientsAndHost)]
         internal void ResolveMalfunctionClientRpc(NetworkBehaviourReference malfunctionObjectRef)
         {
             if (malfunctionObjectRef.TryGet(out NetworkBehaviour malfunctionObject))
@@ -40,7 +40,7 @@ namespace VoxxWeatherPlugin.Behaviours
             }
         }
 
-        [ClientRpc]
+        [Rpc(SendTo.ClientsAndHost)]
         internal void ResolveMalfunctionClientRpc(int radMechNestIndex)
         {
             EnemyAINestSpawnObject radMechNest = RoundManager.Instance.enemyNestSpawnObjects[radMechNestIndex];

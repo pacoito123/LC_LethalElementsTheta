@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using BepInEx.Bootstrap;
 using VoxxWeatherPlugin.Compatibility;
-using System.Linq;
 
 namespace VoxxWeatherPlugin
 {
@@ -31,7 +30,7 @@ namespace VoxxWeatherPlugin
             StaticLogger = Logger;
             harmony = new Harmony(PluginInfo.PLUGIN_GUID);
 
-            NetcodePatcher();
+            // NetcodePatcher();
 
             // Pass plugin metadata to the configuration class
             Configuration.Initialize(Info.Metadata);
@@ -118,7 +117,7 @@ namespace VoxxWeatherPlugin
 #endif
         }
 
-        private static void NetcodePatcher()
+        /* private static void NetcodePatcher()
         {
             Type[] types;
             try
@@ -144,7 +143,7 @@ namespace VoxxWeatherPlugin
                 }
                 catch (Exception) { } // What error? There was never an error, don't worry about it...
             }
-        }
+        } */
     }
 
     public static class Debug

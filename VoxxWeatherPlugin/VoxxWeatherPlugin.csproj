@@ -1,57 +1,78 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+    <!-- BepInEx properties. -->
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>voxx.LethalElementsPlugin</AssemblyName>
         <Description>A plugin adding new weather types to Lethal Company</Description>
-        <Version>1.3.0</Version>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <LangVersion>latest</LangVersion>
+        <Version>1.4.0</Version>
     </PropertyGroup>
 
+    <!-- Project properties. -->
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>preview</LangVersion>
+        <PackageLicenseFile>../LICENSE</PackageLicenseFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <!-- Code linting. -->
+    <PropertyGroup>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+        <AnalysisMode>All</AnalysisMode>
+        <AnalysisLevel>preview-recommended</AnalysisLevel>
+    </PropertyGroup>
+
+    <!-- Disable certain warnings. -->
+    <PropertyGroup>
+        <!-- <NoWarn>$(NoWarn);CA1000</NoWarn>
+        <NoWarn>$(NoWarn);CA1051</NoWarn>
+        <NoWarn>$(NoWarn);CA1707</NoWarn>
+        <NoWarn>$(NoWarn);CA1859</NoWarn> -->
+        <NoWarn>$(NoWarn);IDE0130</NoWarn>
+    </PropertyGroup>
+
+    <!-- Embedded debug. -->
     <PropertyGroup>
         <DebugSymbols>true</DebugSymbols>
         <DebugType>embedded</DebugType>
         <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-      <Optimize>True</Optimize>
-      <DebugSymbols>true</DebugSymbols>
-      <DebugType>embedded</DebugType>
-      <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
-    </PropertyGroup>
-
+    <!-- Enable 'Nullable' types. -->
     <PropertyGroup>
-      <Nullable>enable</Nullable>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
-        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.22.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="BepInEx.Core" Version="5.*" />
-        <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-        <PackageReference Include="IAmBatby.LethalLevelLoader" Version="1.4.0" />
-        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="67.0.0-ngd.0" />
-        <PackageReference Include="mrov.MrovLib" Version="0.2.21" />
-        <PackageReference Include="mrov.WeatherRegistry" Version="0.4.2" />
-        <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" />
-		<Reference Include="UnityEditor" HintPath="C:\Program Files\Unity 2022.3.9f1\Editor\Data\Managed\UnityEditor.dll" />
-		<Reference Include="UnityEngine" HintPath="C:\Program Files\Unity 2022.3.9f1\Editor\Data\Managed\UnityEngine.dll" />
-        <Reference Include="TerraMesh" HintPath=".\libs\voxx.TerraMesh.dll" />
-        <Reference Include="OpenBodyCams" HintPath=".\libs\OpenBodyCams.dll" />
-		<Reference Include="WeatherTweaks" HintPath=".\libs\WeatherTweaks.dll" />
-		</ItemGroup>
-	
+        <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+        <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+        <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" PrivateAssets="all" />
+        <PackageReference Include="UnityEngine.Modules" Version="2022.3.62" IncludeAssets="compile" PrivateAssets="all" />
+        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="73.0.0-ngd.0" PrivateAssets="all" />
+        <PackageReference Include="IAmBatby.LethalLevelLoader" Version="1.4.*" PrivateAssets="all" />
+        <PackageReference Include="mrov.MrovLib" Version="0.3.*" PrivateAssets="all" />
+        <PackageReference Include="mrov.WeatherRegistry" Version="0.7.*" PrivateAssets="all" />
+
+        <PackageReference Include="Zaggy1024-OpenBodyCams" Version="3.0.*" PrivateAssets="all" />
+        <PackageReference Include="v0xx-TerraMesh" Version="1.2.*" PrivateAssets="all" />
+        <PackageReference Include="mrov-WeatherTweaks" Version="1.1.*" PrivateAssets="all" />
+    </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
     </ItemGroup>
 
-	<Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
-		<Exec Command="netcode-patch -nv 1.5.2 &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
-	</Target>
+    <ItemGroup>
+        <None Include="../LICENSE" Pack="true" PackagePath="$(PackageLicenseFile)" />
+    </ItemGroup>
+
+    <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
+        <Exec Command="netcode-patch -uv 2022.3.62 -nv 1.12.0 -tv 1.0.0 &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
+    </Target>
 </Project>

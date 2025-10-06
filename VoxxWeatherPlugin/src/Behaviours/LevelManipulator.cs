@@ -553,30 +553,31 @@ namespace VoxxWeatherPlugin.Behaviours
 
             terraMeshConfig = new TerraMeshConfig(
                             // Bounding box for target area
-                            levelBounds : null,
-                            useBounds : Configuration.useLevelBounds.Value, // Use the level bounds to filter out-of-bounds vertices
-                            constrainEdges : true,
+                            levelBounds: null,
+                            useBounds: Configuration.useLevelBounds.Value, // Use the level bounds to filter out-of-bounds vertices
+                            constrainEdges: true,
                             // Mesh subdivision
-                            subdivideMesh : Configuration.subdivideMesh.Value, // Will also force the algorithm to refine mesh to remove thin triangles
-                            baseEdgeLength : 5, // The target edge length for the mesh refinement
-                            //Mesh smoothing
-                            smoothMesh : Configuration.smoothMesh.Value,
-                            smoothingIterations : 1,
+                            subdivideMesh: Configuration.subdivideMesh.Value, // Will also force the algorithm to refine mesh to remove thin triangles
+                            baseEdgeLength: 5, // The target edge length for the mesh refinement
+                                               //Mesh smoothing
+                            smoothMesh: Configuration.smoothMesh.Value,
+                            smoothingIterations: 1,
                             // UVs
-                            replaceUvs : false,
-                            onlyUVs : false, //Will only update UV1 field on the mesh
-                            // Renderer mask
-                            renderingLayerMask : (uint)(snowOverlayCustomPass?.renderingLayers ?? 0),
+                            replaceUvs: false,
+                            onlyUVs: false, //Will only update UV1 field on the mesh
+                                            // Renderer mask
+                            renderingLayerMask: (uint)(snowOverlayCustomPass?.renderingLayers ?? 0),
                             // Terrain conversion
-                            minMeshStep : Configuration.minMeshStep.Value,
-                            maxMeshStep : Configuration.maxMeshStep.Value,
-                            falloffSpeed : Configuration.falloffRatio.Value,
-                            targetVertexCount : Configuration.targetVertexCount.Value,
-                            carveHoles : Configuration.carveHoles.Value,
-                            refineMesh : Configuration.refineMesh.Value,
-                            useMeshCollider : Configuration.useMeshCollider.Value,
-                            copyTrees : Configuration.useMeshCollider.Value,
-                            copyDetail : false
+                            minMeshStep: Configuration.minMeshStep.Value,
+                            maxMeshStep: Configuration.maxMeshStep.Value,
+                            falloffSpeed: Configuration.falloffRatio.Value,
+                            targetVertexCount: Configuration.targetVertexCount.Value,
+                            carveHoles: Configuration.carveHoles.Value,
+                            refineMesh: Configuration.refineMesh.Value,
+                            useMeshCollider: Configuration.useMeshCollider.Value,
+                            copyTrees: Configuration.useMeshCollider.Value,
+                            copyDetail: false,
+                            terraMeshShader: null
                             );
 
             levelDepthmap = new RenderTexture(DepthmapResolution,
