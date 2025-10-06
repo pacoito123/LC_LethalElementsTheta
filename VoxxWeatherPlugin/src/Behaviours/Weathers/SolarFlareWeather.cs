@@ -88,7 +88,7 @@ namespace VoxxWeatherPlugin.Weathers
         {
             Instance = this;
 
-            if (OpenBodyCamsCompat.IsActive)
+            if (OpenBodyCamsCompat.Enabled)
             {
                 OpenBodyCamsCompat.GlitchBodyCameras();
             }

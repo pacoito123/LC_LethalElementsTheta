@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using BepInEx.Bootstrap;
 using VoxxWeatherPlugin.Compatibility;
+using System.Linq;
 
 namespace VoxxWeatherPlugin
 {
@@ -27,7 +28,7 @@ namespace VoxxWeatherPlugin
         private void Awake()
         {
             instance = this;
-            StaticLogger = Logger; 
+            StaticLogger = Logger;
             harmony = new Harmony(PluginInfo.PLUGIN_GUID);
 
             NetcodePatcher();
@@ -41,16 +42,10 @@ namespace VoxxWeatherPlugin
                 LLLCompat.Init();
             }
 
-            if (Chainloader.PluginInfos.ContainsKey("Zaggy1024.OpenBodyCams"))
-            {
-                Logger.LogDebug("OpenBodyCams detected!");
-                OpenBodyCamsCompat.Init();
-            }
-
             WeatherTypeLoader.LoadLevelManipulator();
             harmony.PatchAll(typeof(BasicPatches));
 
-            if (Configuration.EnableSolarFlareWeather.Value)    
+            if (Configuration.EnableSolarFlareWeather.Value)
             {
                 WeatherTypeLoader.RegisterFlareWeather();
                 harmony.PatchAll(typeof(FlarePatches));
@@ -95,13 +90,14 @@ namespace VoxxWeatherPlugin
                 }
 
                 MethodInfo patchMethod = typeof(SnowPatches).GetMethod("EnemySnowHindrancePatch", BindingFlags.NonPublic | BindingFlags.Static);
-                DynamicHarmonyPatcher.PatchAllTypes(typeof(EnemyAI), "Update", patchMethod, PatchType.Postfix, harmony, SnowPatches.unaffectedEnemyTypes); 
+                DynamicHarmonyPatcher.PatchAllTypes(typeof(EnemyAI), "Update", patchMethod, PatchType.Postfix, harmony, SnowPatches.unaffectedEnemyTypes);
                 Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} enemy snow hindrance patches successfully applied!");
 
             }
 
             // Delayed registering of the combined weathers for WeatherTweaks compatibility
-            WeatherRegistry.EventManager.BeforeSetupStart.AddListener(() => {
+            WeatherRegistry.EventManager.BeforeSetupStart.AddListener(() =>
+            {
                 if (Chainloader.PluginInfos.ContainsKey("WeatherTweaks"))
                 {
                     Logger.LogDebug("Weather Tweaks detected!");
@@ -114,37 +110,41 @@ namespace VoxxWeatherPlugin
 
 
 #if DEBUG
-        // disable overhead of stack trace in dev build
-        Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
-        Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
-        Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.None);
-        Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.None);
+            // disable overhead of stack trace in dev build
+            Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
+            Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
+            Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.None);
+            Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.None);
 #endif
         }
 
         private static void NetcodePatcher()
         {
-            var types = Assembly.GetExecutingAssembly().GetTypes();
-            foreach (var type in types)
+            Type[] types;
+            try
             {
-                try 
+                types = Assembly.GetExecutingAssembly().GetTypes();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                types = [.. e.Types.Where(type => type != null)];
+            }
+
+            foreach (Type type in types)
+            {
+                try
                 {
-                    var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-                    foreach (var method in methods)
+                    foreach (MethodInfo method in type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
                     {
-                        var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
-                        if (attributes.Length > 0)
+                        if (method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false).Length > 0)
                         {
-                            method.Invoke(null, null);
+                            _ = method.Invoke(null, null);
                         }
                     }
                 }
-                catch
-                {
-                    Debug.LogDebug($"Could not get methods from type {type.FullName}, likely due to soft dependency not being loaded, skipping.");
-                }
+                catch (Exception) { } // What error? There was never an error, don't worry about it...
             }
-        }    
+        }
     }
 
     public static class Debug
@@ -208,7 +208,7 @@ namespace VoxxWeatherPlugin
                         {
                             MethodInfo originalMethod = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
                             //Check if a method is an override of the base method and not the base method itself.
-                            if(originalMethod != null && originalMethod.DeclaringType != baseType)
+                            if (originalMethod != null && originalMethod.DeclaringType != baseType)
                             {
                                 derivedTypes.Add(type);
                             }
@@ -258,7 +258,7 @@ namespace VoxxWeatherPlugin
                 try
                 {
                     MethodInfo originalMethod = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    
+
                     if (originalMethod == null)
                     {
                         Debug.LogWarning($"Method '{methodName}' not found on type '{type.FullName}'. Skipping.");
@@ -283,7 +283,7 @@ namespace VoxxWeatherPlugin
                             break;
                     }
                     Debug.LogDebug($"Patched '{methodName}' in '{type.FullName}' using method {patchMethod.Name}");
-            
+
                 }
                 catch (Exception ex)
                 {

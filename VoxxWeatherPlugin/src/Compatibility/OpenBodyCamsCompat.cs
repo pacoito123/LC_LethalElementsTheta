@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.CompilerServices;
 using OpenBodyCams;
 using OpenBodyCams.API;
@@ -8,16 +7,23 @@ using VoxxWeatherPlugin.Weathers;
 
 namespace VoxxWeatherPlugin.Compatibility
 {
-    public static class OpenBodyCamsCompat
+    internal sealed class OpenBodyCamsCompat
     {
-        public static bool IsActive { get; private set; } = false;
-        private static SolarFlareWeather? SolarFlare => SolarFlareWeather.Instance;
-
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void Init()
+        /// <summary>
+        ///     Whether OpenBodyCams is present in the BepInEx Chainloader or not.
+        /// </summary>
+        public static bool Enabled
         {
-            IsActive = true;
+            get
+            {
+                _enabled ??= BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("Zaggy1024.OpenBodyCams");
+
+                return (bool)_enabled;
+            }
         }
+        private static bool? _enabled;
+
+        private static SolarFlareWeather? SolarFlare => SolarFlareWeather.Instance;
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         internal static void GlitchBodyCameras()
@@ -88,7 +94,7 @@ namespace VoxxWeatherPlugin.Compatibility
                 Debug.LogWarning("GlitchEffect is null for bodyCam: " + bodyCamComp.name);
                 return;
             }
-            
+
             glitchEffect.enabled = bodyCamComp.IsRemoteCamera && (SolarFlare?.flareData != null);
             glitchEffect.intensity.value = SolarFlare?.flareData?.ScreenDistortionIntensity ?? 0f;
         }
