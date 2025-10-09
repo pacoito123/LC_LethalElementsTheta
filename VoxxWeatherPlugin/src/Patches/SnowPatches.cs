@@ -1,25 +1,25 @@
-﻿using HarmonyLib;
-using VoxxWeatherPlugin.Weathers;
-using UnityEngine;
+﻿using GameNetcodeStuff;
+using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Reflection.Emit;
-using GameNetcodeStuff;
-using VoxxWeatherPlugin.Utils;
-using VoxxWeatherPlugin.Behaviours;
-using System;
+using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
+using VoxxWeatherPlugin.Behaviours;
+using VoxxWeatherPlugin.Utils;
+using VoxxWeatherPlugin.Weathers;
 
-
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Patches
 {
     [HarmonyPatch]
     internal sealed class SnowPatches
     {
-        internal static bool SnowAffectsEnemies => Configuration.snowAffectsEnemies.Value && Configuration.enableSnowTracks.Value;
-        public static float TimeToWarmUp => Configuration.timeToWarmUp.Value;   // Time to warm up from cold to room temperature
-        internal static float FrostbiteDamageInterval => Configuration.frostbiteDamageInterval.Value;
-        internal static float FrostbiteDamage => Configuration.frostbiteDamage.Value;
+        internal static bool SnowAffectsEnemies => LESettings.snowAffectsEnemies.Value && LESettings.enableSnowTracks.Value;
+        public static float TimeToWarmUp => LESettings.timeToWarmUp.Value;   // Time to warm up from cold to room temperature
+        internal static float FrostbiteDamageInterval => LESettings.frostbiteDamageInterval.Value;
+        internal static float FrostbiteDamage => LESettings.frostbiteDamage.Value;
         internal static float frostbiteThreshold = 0.5f; // Severity at which frostbite starts to occur, should be below 0.9
         internal static float frostbiteTimer;
         internal static HashSet<Type> unaffectedEnemyTypes =
@@ -521,8 +521,7 @@ namespace VoxxWeatherPlugin.Patches
         // true if we should NOT delay rebaking navmesh for ice
         public static bool DelayRebakeForIce()
         {
-            bool delayRebake = IsSnowActive() &&
-                                Configuration.freezeWater.Value;
+            bool delayRebake = IsSnowActive() && LESettings.freezeWater.Value;
             Debug.LogDebug($"Should we delay NavMesh rebaking for ice: {delayRebake}");
             return !delayRebake;
         }

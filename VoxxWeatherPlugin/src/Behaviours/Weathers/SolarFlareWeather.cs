@@ -1,16 +1,17 @@
 ﻿using System;
-using UnityEngine;
-using UnityEngine.VFX;
-using UnityEngine.Rendering.HighDefinition;
-using VoxxWeatherPlugin.Utils;
-using VoxxWeatherPlugin.Behaviours;
 using System.Linq;
 using System.Collections;
-using UnityEngine.Rendering;
 using System.Collections.Generic;
 using TerraMesh;
-using VoxxWeatherPlugin.Compatibility;
 using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.VFX;
+using UnityEngine.Rendering.HighDefinition;
+using VoxxWeatherPlugin.Behaviours;
+using VoxxWeatherPlugin.Compatibility;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Weathers
 {
@@ -70,19 +71,19 @@ namespace VoxxWeatherPlugin.Weathers
         internal Dictionary<MonoBehaviour, ElectricMalfunctionData> electricMalfunctionData = [];
         internal TerminalAccessibleObject[]? bigDoors;
 
-        internal float TurretMalfunctionDelay => Configuration.TurretMalfunctionDelay.Value; // 4
-        internal float RadMechReactivateDelay => Configuration.RadMechReactivateDelay.Value; // 7 
-        internal float RadMechStunDuration => Configuration.RadMechStunDuration.Value; //4
-        internal float TurretMalfunctionChance => Configuration.TurretMalfunctionChance.Value;
-        internal float RadMechReactivationChance => Configuration.RadMechReactivationChance.Value;
-        internal float RadMechMalfunctionChance => Configuration.RadMechMalfunctionChance.Value;
-        internal float DoorMalfunctionChance => Configuration.DoorMalfunctionChance.Value;
-        internal float LandmineMalfunctionChance => Configuration.LandmineMalfunctionChance.Value;
+        internal float TurretMalfunctionDelay => LESettings.TurretMalfunctionDelay.Value; // 4
+        internal float RadMechReactivateDelay => LESettings.RadMechReactivateDelay.Value; // 7 
+        internal float RadMechStunDuration => LESettings.RadMechStunDuration.Value; //4
+        internal float TurretMalfunctionChance => LESettings.TurretMalfunctionChance.Value;
+        internal float RadMechReactivationChance => LESettings.RadMechReactivationChance.Value;
+        internal float RadMechMalfunctionChance => LESettings.RadMechMalfunctionChance.Value;
+        internal float DoorMalfunctionChance => LESettings.DoorMalfunctionChance.Value;
+        internal float LandmineMalfunctionChance => LESettings.LandmineMalfunctionChance.Value;
 
-        internal bool IsDoorMalfunctionEnabled => Configuration.DoorMalfunctionEnabled.Value;
-        internal bool IsRadMechMalfunctionEnabled => Configuration.RadMechMalfunctionEnabled.Value;
-        internal bool IsTurretMalfunctionEnabled => Configuration.TurretMalfunctionEnabled.Value;
-        internal bool IsLandmineMalfunctionEnabled => Configuration.LandmineMalfunctionEnabled.Value;
+        internal bool IsDoorMalfunctionEnabled => LESettings.DoorMalfunctionEnabled.Value;
+        internal bool IsRadMechMalfunctionEnabled => LESettings.RadMechMalfunctionEnabled.Value;
+        internal bool IsTurretMalfunctionEnabled => LESettings.TurretMalfunctionEnabled.Value;
+        internal bool IsLandmineMalfunctionEnabled => LESettings.LandmineMalfunctionEnabled.Value;
         private Mesh? turretMeshReadable;
 
         private void Awake()
@@ -149,7 +150,7 @@ namespace VoxxWeatherPlugin.Weathers
             if (VFXManager != null)
                 VFXManager.PopulateLevelWithVFX();
 
-            StartCoroutine(DisplayTipDelayed("Solar Flare Warning", $"{randomIntensity} solar energy burst detected!", 7f));
+            _ = StartCoroutine(DisplayTipDelayed("Solar Flare Warning", $"{randomIntensity} solar energy burst detected!", 7f));
         }
 
         private IEnumerator DisplayTipDelayed(string title, string message, float delay)
@@ -175,7 +176,7 @@ namespace VoxxWeatherPlugin.Weathers
 
             foreach (Camera staleCamera in staleCameras)
             {
-                glitchPasses.Remove(staleCamera);
+                _ = glitchPasses.Remove(staleCamera);
             }
         }
 
@@ -308,7 +309,7 @@ namespace VoxxWeatherPlugin.Weathers
             {
                 // Clean up the dictionary
                 Debug.LogDebug("Malfunction object is null! Removing from dictionary.");
-                electricMalfunctionData.Remove(malfunctionData.malfunctionObject);
+                _ = electricMalfunctionData.Remove(malfunctionData.malfunctionObject);
                 yield break;
             }
 
@@ -340,7 +341,7 @@ namespace VoxxWeatherPlugin.Weathers
             {
                 if (GameNetworkManager.Instance.isHostingGame)
                 {
-                    (turret as IHittable).Hit(1, Vector3.down);
+                    _ = (turret as IHittable).Hit(1, Vector3.down);
                 }
                 yield return new WaitForSeconds(2f); // Wait a bit so turret's mode will sync up 
                 yield return new WaitUntil(() => turret.turretMode != TurretMode.Berserk);
@@ -356,7 +357,7 @@ namespace VoxxWeatherPlugin.Weathers
                 {
                     Vector3 nestPosition = radMechNest.transform.position;
                     float nestAngle = radMechNest.transform.rotation.eulerAngles.y;
-                    RoundManager.Instance.enemyNestSpawnObjects.Remove(radMechNest);
+                    _ = RoundManager.Instance.enemyNestSpawnObjects.Remove(radMechNest);
                     Destroy(radMechNest.gameObject);
                     GameObject radMechNestPrefab = radMechType.nestSpawnPrefab;
                     radMechType.nestSpawnPrefab = null; // This is to prevent the spawned rad mech to teleport to a random nest
@@ -367,18 +368,18 @@ namespace VoxxWeatherPlugin.Weathers
                     }
                     yield return new WaitForSeconds(2f); // Wait a bit to sync up
                     radMechType.nestSpawnPrefab = radMechNestPrefab;
-                    electricMalfunctionData.Remove(radMechNest);
+                    _ = electricMalfunctionData.Remove(radMechNest);
                 }
             }
             else if (malfunctionData.malfunctionObject is Landmine mine)
             {
                 if (GameNetworkManager.Instance.isHostingGame)
                 {
-                    (mine as IHittable).Hit(1, Vector3.down);
+                    _ = (mine as IHittable).Hit(1, Vector3.down);
                 }
                 if (malfunctionData.StaticParticles != null)
                     malfunctionData.StaticParticles.Stop();
-                electricMalfunctionData.Remove(mine);
+                _ = electricMalfunctionData.Remove(mine);
             }
 
             if (malfunctionData.FadeAudioCoroutine != null)
@@ -643,7 +644,7 @@ namespace VoxxWeatherPlugin.Weathers
         private GameObject? sunTextureObject; // GameObject for the sun texture
 
         // Threshold for sun luminosity in lux to enable aurora
-        internal float auroraSunThreshold => Configuration.AuroraVisibilityThreshold.Value;
+        internal float auroraSunThreshold => LESettings.AuroraVisibilityThreshold.Value;
 
         // Variables for emitter placement
 

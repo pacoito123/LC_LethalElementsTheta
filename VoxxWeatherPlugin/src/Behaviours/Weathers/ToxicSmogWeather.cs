@@ -1,12 +1,14 @@
-using UnityEngine;
-using UnityEngine.Rendering.HighDefinition;
-using UnityEngine.AI;
 using System.Collections.Generic;
 using System.Linq;
-using VoxxWeatherPlugin.Behaviours;
-using VoxxWeatherPlugin.Utils;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.VFX;
+using VoxxWeatherPlugin.Behaviours;
 using VoxxWeatherPlugin.Compatibility;
+using VoxxWeatherPlugin.Utils;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Weathers
 {
@@ -43,8 +45,8 @@ namespace VoxxWeatherPlugin.Weathers
         [Header("Smog")]
         [SerializeField]
         private float smogFreePath = 24f;
-        private float MinFreePath => Configuration.MinFreePath.Value;
-        private float MaxFreePath => Configuration.MaxFreePath.Value;
+        private float MinFreePath => LESettings.MinFreePath.Value;
+        private float MaxFreePath => LESettings.MaxFreePath.Value;
         [SerializeField]
         private LocalVolumetricFog? toxicVolumetricFog;
 
@@ -53,9 +55,9 @@ namespace VoxxWeatherPlugin.Weathers
         internal GameObject? hazardPrefab; // Assign in the inspector
         [SerializeField]
         private int fumesAmount = 24;
-        private int MinFumesAmount => Configuration.MinFumesAmount.Value;
-        private int MaxFumesAmount => Configuration.MaxFumesAmount.Value;
-        private float factoryAmountMultiplier => Configuration.FactoryAmountMultiplier.Value;
+        private int MinFumesAmount => LESettings.MinFumesAmount.Value;
+        private int MaxFumesAmount => LESettings.MaxFumesAmount.Value;
+        private float factoryAmountMultiplier => LESettings.FactoryAmountMultiplier.Value;
         [SerializeField]
         private int factoryFumesAmount = 12;
         [SerializeField]
@@ -159,7 +161,7 @@ namespace VoxxWeatherPlugin.Weathers
             List<Vector3> anchorPositions = [.. RoundManager.Instance.outsideAINodes.Select(node => node.transform.position)];
             // Use outside entrances as blockers
             List<Vector3> blockersPositions = [.. entrances.Select(entrance => entrance.transform.position)];
-            ///Add ship bounds to the list of blockers
+            //Add ship bounds to the list of blockers
             blockersPositions.AddRange([StartOfRound.Instance.shipBounds.transform.position, Vector3.zero]);
             Debug.LogDebug($"Outdoor fumes: Anchor positions: {anchorPositions.Count}, Blockers positions: {blockersPositions.Count}");
             SpawnFumes(anchorPositions, blockersPositions, fumesAmount, fumesContainerOutside, SeededRandom);
@@ -224,12 +226,7 @@ namespace VoxxWeatherPlugin.Weathers
             Vector3 potentialPosition = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(
                                                 objectPosition, spawnRadius, navHit, random, NavMesh.AllAreas);
 
-            if (IsPositionValid(potentialPosition, blockedPositions))
-            {
-                return potentialPosition;
-            }
-
-            return Vector3.zero;
+            return IsPositionValid(potentialPosition, blockedPositions) ? potentialPosition : Vector3.zero;
         }
 
         private bool IsPositionValid(Vector3 position, List<Vector3> blockedPositions)

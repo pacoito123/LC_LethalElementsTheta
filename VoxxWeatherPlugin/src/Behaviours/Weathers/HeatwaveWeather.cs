@@ -1,12 +1,14 @@
 ﻿using GameNetcodeStuff;
-using UnityEngine.Rendering;
-using UnityEngine;
-using VoxxWeatherPlugin.Utils;
-using UnityEngine.AI;
-using UnityEngine.VFX;
-using System.Collections.Generic;
-using VoxxWeatherPlugin.Behaviours;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.Rendering;
+using UnityEngine.VFX;
+using VoxxWeatherPlugin.Behaviours;
+using VoxxWeatherPlugin.Utils;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Weathers
 {
@@ -16,8 +18,8 @@ namespace VoxxWeatherPlugin.Weathers
         [SerializeField]
         internal Volume? exhaustionFilter; // Filter for visual effects
         private BoxCollider? heatwaveTrigger; // Trigger collider for the heatwave zone
-        private float timeUntilStrokeMin => Configuration.TimeUntilStrokeMin.Value; // Minimum time until a heatstroke occurs
-        private float timeUntilStrokeMax => Configuration.TimeUntilStrokeMax.Value; // Maximum time until a heatstroke occurs
+        private float timeUntilStrokeMin => LESettings.TimeUntilStrokeMin.Value; // Minimum time until a heatstroke occurs
+        private float timeUntilStrokeMax => LESettings.TimeUntilStrokeMax.Value; // Maximum time until a heatstroke occurs
         [SerializeField]
         internal float timeInHeatZoneMax = 50f; // Time before maximum effects are applied
         [SerializeField]
@@ -141,7 +143,7 @@ namespace VoxxWeatherPlugin.Weathers
             if (heatwaveVFXContainer == null)
                 heatwaveVFXContainer = new GameObject("HeatwaveVFXContainer");
 
-            StartCoroutine(PlaceHeatwaveVFXCoroutine());
+            _ = StartCoroutine(PlaceHeatwaveVFXCoroutine());
         }
 
         private IEnumerator PlaceHeatwaveVFXCoroutine()
@@ -273,7 +275,7 @@ namespace VoxxWeatherPlugin.Weathers
                 foreach (VisualEffect vfx in cachedVFX)
                 {
                     if (vfx != null)
-                        vfx.SetFloat(spawnRatePropertyID, (Configuration.HeatwaveParticlesSpawnRate.Value * reductionFactor) + 0.25f);
+                        vfx.SetFloat(spawnRatePropertyID, (LESettings.HeatwaveParticlesSpawnRate.Value * reductionFactor) + 0.25f);
                     yield return null;
                 }
             }

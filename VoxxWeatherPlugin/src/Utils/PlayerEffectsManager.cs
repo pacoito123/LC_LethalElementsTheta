@@ -1,11 +1,13 @@
-﻿using UnityEngine.Rendering;
-using UnityEngine;
+﻿using GameNetcodeStuff;
 using VoxxWeatherPlugin.Patches;
-using GameNetcodeStuff;
+using UnityEngine.Rendering;
+using UnityEngine;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Utils
 {
-    internal class PlayerEffectsManager
+    internal sealed class PlayerEffectsManager
     {
         public static bool isInHeatZone;
         public static bool isInColdZone;
@@ -22,9 +24,9 @@ namespace VoxxWeatherPlugin.Utils
         internal static Volume? freezeEffectVolume;
         internal static Volume? underSnowVolume;
 
-        private static float UnderSnowVisualMultiplier => Configuration.underSnowFilterMultiplier.Value;
-        private static float HeatVisualMultiplier => Configuration.HeathazeFilterMultiplier.Value;
-        private static float ColdVisualMultiplier => Configuration.frostbiteFilterMultiplier.Value;
+        private static float UnderSnowVisualMultiplier => LESettings.underSnowFilterMultiplier.Value;
+        private static float HeatVisualMultiplier => LESettings.HeathazeFilterMultiplier.Value;
+        private static float ColdVisualMultiplier => LESettings.frostbiteFilterMultiplier.Value;
 
         internal static void SetPlayerTemperature(float temperatureDelta)
         {

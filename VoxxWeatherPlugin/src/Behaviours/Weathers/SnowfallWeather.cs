@@ -1,27 +1,29 @@
+using GameNetcodeStuff;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering.HighDefinition;
 using VoxxWeatherPlugin.Behaviours;
 using VoxxWeatherPlugin.Patches;
 using VoxxWeatherPlugin.Utils;
-using GameNetcodeStuff;
-using UnityEngine.Rendering.HighDefinition;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Weathers
 {
     internal class SnowfallWeather : BaseWeather
     {
         public static SnowfallWeather? Instance { get; internal set; }
-        internal virtual float MinSnowHeight => Configuration.minSnowHeight.Value;
-        internal virtual float MaxSnowHeight => Configuration.maxSnowHeight.Value;
-        internal virtual float MinSnowNormalizedTime => Configuration.minTimeToFullSnow.Value;
-        internal virtual float MaxSnowNormalizedTime => Configuration.maxTimeToFullSnow.Value;
+        internal virtual float MinSnowHeight => LESettings.minSnowHeight.Value;
+        internal virtual float MaxSnowHeight => LESettings.maxSnowHeight.Value;
+        internal virtual float MinSnowNormalizedTime => LESettings.minTimeToFullSnow.Value;
+        internal virtual float MaxSnowNormalizedTime => LESettings.maxTimeToFullSnow.Value;
 
         [Header("General")]
         [SerializeField]
-        internal float timeUntilFrostbite = 0.6f * Configuration.minTimeUntilFrostbite.Value;
+        internal float timeUntilFrostbite = 0.6f * LESettings.minTimeUntilFrostbite.Value;
         [SerializeField]
         internal SnowfallVFXManager? VFXManager;
 
@@ -187,7 +189,7 @@ namespace VoxxWeatherPlugin.Weathers
             }
 
             // If normalized snow timer is at 30% of fullSnowNormalizedTime, turn on vanilla footprints
-            if (Configuration.addFootprints.Value &&
+            if (LESettings.addFootprints.Value &&
                 !addedVanillaFootprints &&
                 !StartOfRound.Instance.currentLevel.levelIncludesSnowFootprints
                 && (LevelManipulator.Instance != null ? LevelManipulator.Instance.snowIntensity : 10f) < 7)
@@ -221,7 +223,7 @@ namespace VoxxWeatherPlugin.Weathers
             }
 
             // For blizzard weather prefab won't be set
-            if (christmasTreePrefab == null || !Configuration.enableEasterEgg.Value)
+            if (christmasTreePrefab == null || !LESettings.enableEasterEgg.Value)
             {
                 return;
             }

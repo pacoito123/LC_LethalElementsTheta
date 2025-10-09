@@ -4,14 +4,16 @@ using UnityEngine;
 using VoxxWeatherPlugin.Utils;
 using VoxxWeatherPlugin.Weathers;
 
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
+
 namespace VoxxWeatherPlugin.Patches
 {
     [HarmonyPatch]
     internal sealed class ToxicPatches
     {
-        private static float DamageInterval => Configuration.ToxicDamageInterval.Value;
-        private static int DamageAmount => Configuration.ToxicDamageAmount.Value;
-        private static float PoisoningRemovalMultiplier => Configuration.PoisoningRemovalMultiplier.Value;
+        private static float DamageInterval => LESettings.ToxicDamageInterval.Value;
+        private static int DamageAmount => LESettings.ToxicDamageAmount.Value;
+        private static float PoisoningRemovalMultiplier => LESettings.PoisoningRemovalMultiplier.Value;
 
         private static float damageTimer;
 

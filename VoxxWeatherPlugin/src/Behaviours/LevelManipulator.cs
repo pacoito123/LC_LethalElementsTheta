@@ -1,3 +1,5 @@
+using DunGen;
+using GameNetcodeStuff;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -5,8 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using DunGen;
-using GameNetcodeStuff;
 using TerraMesh;
 using TerraMesh.Utils;
 using Unity.AI.Navigation;
@@ -19,6 +19,8 @@ using VoxxWeatherPlugin.Compatibility;
 using VoxxWeatherPlugin.Utils;
 using VoxxWeatherPlugin.Weathers;
 using WeatherRegistry;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
@@ -53,7 +55,7 @@ namespace VoxxWeatherPlugin.Behaviours
         internal Material? snowVertexMaterial;
         [SerializeField]
         internal Material? snowVertexOpaqueMaterial;
-        internal Material? CurrentSnowVertexMaterial => Configuration.useOpaqueSnowMaterial.Value ? snowVertexOpaqueMaterial : snowVertexMaterial;
+        internal Material? CurrentSnowVertexMaterial => LESettings.useOpaqueSnowMaterial.Value ? snowVertexOpaqueMaterial : snowVertexMaterial;
         [SerializeField]
         internal Material? iceMaterial;
         [SerializeField]
@@ -78,8 +80,8 @@ namespace VoxxWeatherPlugin.Behaviours
         internal RenderTexture? levelDepthmap;
         [SerializeField]
         internal RenderTexture? levelDepthmapUnblurred;
-        internal int DepthmapResolution => Configuration.depthBufferResolution.Value;
-        internal int PCFKernelSize => Configuration.PCFKernelSize.Value;
+        internal int DepthmapResolution => LESettings.depthBufferResolution.Value;
+        internal int PCFKernelSize => LESettings.PCFKernelSize.Value;
         public Material? depthBakeMaterial;
         public int depthBlurRadius = 2; // Used for smoothing depth in VSM algorithm
         [SerializeField]
@@ -98,27 +100,22 @@ namespace VoxxWeatherPlugin.Behaviours
         internal Camera? snowTracksCamera;
         [SerializeField]
         internal RenderTexture? snowTracksMap;
-        [SerializeField]
-        internal int TracksMapResolution => Configuration.trackerMapResolution.Value;
+        internal int TracksMapResolution => LESettings.trackerMapResolution.Value;
         internal Matrix4x4? tracksWorldToClipMatrix;
 
         // [Header("Tessellation Parameters")]
-        [SerializeField]
-        internal float BaseTessellationFactor => Configuration.minTesselationFactor.Value;
-        [SerializeField]
-        internal float MaxTessellationFactor => Configuration.maxTesselationFactor.Value;
-        [SerializeField]
-        internal int IsAdaptiveTessellation => Convert.ToInt32(Configuration.adaptiveTesselation.Value); // 0 for fixed tessellation, 1 for adaptive tessellation
+        internal float BaseTessellationFactor => LESettings.minTesselationFactor.Value;
+        internal float MaxTessellationFactor => LESettings.maxTesselationFactor.Value;
+        internal int IsAdaptiveTessellation => Convert.ToInt32(LESettings.adaptiveTesselation.Value); // 0 for fixed tessellation, 1 for adaptive tessellation
 
         [Header("Baking Parameters")]
         [SerializeField]
         internal Material? bakeMaterial;
-        [SerializeField]
-        internal int BakeResolution => Configuration.snowDepthMapResolution.Value;
+        internal int BakeResolution => LESettings.snowDepthMapResolution.Value;
         internal readonly int blurRadius = 2; // Used for smoothing normals in the baked snow masks
         [SerializeField]
         internal Texture2DArray? snowMasks; // Texture2DArray to store the snow masks
-        internal bool BakeMipmaps => Configuration.bakeSnowDepthMipmaps.Value;
+        internal bool BakeMipmaps => LESettings.bakeSnowDepthMipmaps.Value;
 
         #endregion
 
@@ -172,7 +169,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
             Instance = this;
 
-            if (Configuration.EnableBlizzardWeather.Value || Configuration.EnableSnowfallWeather.Value)
+            if (LESettings.EnableBlizzardWeather.Value || LESettings.EnableSnowfallWeather.Value)
             {
                 Debug.LogDebug("Initializing snow variables...");
                 if (snowModule != null)
@@ -535,7 +532,7 @@ namespace VoxxWeatherPlugin.Behaviours
             // Update the camera position to follow the player or the spectated player
             Vector3 playerPosition = localPlayer.isPlayerDead ? ((localPlayer.spectatedPlayerScript != null)
                 ? localPlayer.spectatedPlayerScript.transform.position : default) : localPlayer.transform.position;
-            camera.LimitFrameRate(Configuration.tracksCameraFPS.Value);
+            camera.LimitFrameRate(LESettings.tracksCameraFPS.Value);
             if (Vector3.Distance(playerPosition, cameraContainer.transform.position) >= camera.orthographicSize / 2f)
             {
                 // To render the frame when position changed
@@ -558,13 +555,13 @@ namespace VoxxWeatherPlugin.Behaviours
             terraMeshConfig = new TerraMeshConfig(
                             // Bounding box for target area
                             levelBounds: null,
-                            useBounds: Configuration.useLevelBounds.Value, // Use the level bounds to filter out-of-bounds vertices
+                            useBounds: LESettings.useLevelBounds.Value, // Use the level bounds to filter out-of-bounds vertices
                             constrainEdges: true,
                             // Mesh subdivision
-                            subdivideMesh: Configuration.subdivideMesh.Value, // Will also force the algorithm to refine mesh to remove thin triangles
+                            subdivideMesh: LESettings.subdivideMesh.Value, // Will also force the algorithm to refine mesh to remove thin triangles
                             baseEdgeLength: 5, // The target edge length for the mesh refinement
                                                //Mesh smoothing
-                            smoothMesh: Configuration.smoothMesh.Value,
+                            smoothMesh: LESettings.smoothMesh.Value,
                             smoothingIterations: 1,
                             // UVs
                             replaceUvs: false,
@@ -572,14 +569,14 @@ namespace VoxxWeatherPlugin.Behaviours
                                             // Renderer mask
                             renderingLayerMask: (uint)(snowOverlayCustomPass?.renderingLayers ?? 0),
                             // Terrain conversion
-                            minMeshStep: Configuration.minMeshStep.Value,
-                            maxMeshStep: Configuration.maxMeshStep.Value,
-                            falloffSpeed: Configuration.falloffRatio.Value,
-                            targetVertexCount: Configuration.targetVertexCount.Value,
-                            carveHoles: Configuration.carveHoles.Value,
-                            refineMesh: Configuration.refineMesh.Value,
-                            useMeshCollider: Configuration.useMeshCollider.Value,
-                            copyTrees: Configuration.useMeshCollider.Value,
+                            minMeshStep: LESettings.minMeshStep.Value,
+                            maxMeshStep: LESettings.maxMeshStep.Value,
+                            falloffSpeed: LESettings.falloffRatio.Value,
+                            targetVertexCount: LESettings.targetVertexCount.Value,
+                            carveHoles: LESettings.carveHoles.Value,
+                            refineMesh: LESettings.refineMesh.Value,
+                            useMeshCollider: LESettings.useMeshCollider.Value,
+                            copyTrees: LESettings.useMeshCollider.Value,
                             copyDetail: false,
                             terraMeshShader: null
                             );
@@ -637,16 +634,16 @@ namespace VoxxWeatherPlugin.Behaviours
             };
             snowTracksMap.Create();
             // Set the camera target texture
-            snowTracksCamera!.enabled = Configuration.enableSnowTracks.Value;
-            if (!Configuration.enableSnowTracks.Value)
+            snowTracksCamera!.enabled = LESettings.enableSnowTracks.Value;
+            if (!LESettings.enableSnowTracks.Value)
             {
                 snowTracksMap.WhiteOut();
             }
             snowTracksCamera.targetTexture = snowTracksMap;
             snowTracksCamera.aspect = 1.0f;
 
-            moonProcessingWhitelist = Configuration.meshProcessingWhitelist.Value.CleanMoonName().TrimEnd(';').Split(';');
-            enemySnowBlacklist = [.. Configuration.enemySnowBlacklist.Value.ToLower().TrimEnd(';').Split(';')];
+            moonProcessingWhitelist = LESettings.meshProcessingWhitelist.Value.CleanMoonName().TrimEnd(';').Split(';');
+            enemySnowBlacklist = [.. LESettings.enemySnowBlacklist.Value.ToLower().TrimEnd(';').Split(';')];
 
             // Assign the snow effects to the PlayerEffectsManager
             foreach (Transform child in snowVolume.transform.parent)
@@ -736,8 +733,8 @@ namespace VoxxWeatherPlugin.Behaviours
             ModifyRenderMasks(surfaceObjects, terraMeshConfig.renderingLayerMask);
             ModifyScrollingFog(fogStrengthRange.Item1, fogStrengthRange.Item2);
             RefreshLevelCamera();
-            StartCoroutine(FinishSnowSetupCoroutine(Configuration.asyncProcessing.Value));
-            StartCoroutine(RefreshDepthmapOnLanding());
+            _ = StartCoroutine(FinishSnowSetupCoroutine(LESettings.asyncProcessing.Value));
+            _ = StartCoroutine(RefreshDepthmapOnLanding());
         }
 
         internal IEnumerator FinishSnowSetupCoroutine(bool isAsync = false)
@@ -910,7 +907,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 }
 
                 Task meshTerrainTask = groundTask.ContinueWith(ProcessMeshTerrainObject, mainThreadScheduler);
-                meshifyTaskDict.TryAdd(groundTask, groundObject);
+                _ = meshifyTaskDict.TryAdd(groundTask, groundObject);
                 tasks.Add(meshTerrainTask);
             }
 
@@ -978,7 +975,7 @@ namespace VoxxWeatherPlugin.Behaviours
                         // Setup the index in the material property block for the snow masks
                         SetupMeshForSnow(meshTerrain, currentIndex, tempRT, blurRT1, blurRT2, maskLayer, sw);
                         // Add the terrain to the dictionary
-                        groundToIndexSafe.TryAdd(meshTerrain, currentIndex);
+                        _ = groundToIndexSafe.TryAdd(meshTerrain, currentIndex);
                         break;
                     case Terrain terrain:
                         // Modify render mask to support overlay snow rendering
@@ -988,7 +985,7 @@ namespace VoxxWeatherPlugin.Behaviours
                         SetupMeshForSnow(meshTerrain, currentIndex, tempRT, blurRT1, blurRT2, maskLayer, sw);
                         // Use mesh terrain or terrain collider for snow thickness calculation
                         GameObject colliderObject = terraMeshConfig.useMeshCollider ? meshTerrain : terrain.gameObject;
-                        groundToIndexSafe.TryAdd(colliderObject, currentIndex);
+                        _ = groundToIndexSafe.TryAdd(colliderObject, currentIndex);
                         // Store the mesh terrain in the list for baking later
                         groundObjectCandidatesSafe.Add(meshTerrain);
                         break;
@@ -1067,7 +1064,7 @@ namespace VoxxWeatherPlugin.Behaviours
         internal void SetupMeshForSnow(GameObject meshTerrain, int texId)
         {
             // Duplicate the mesh and set the snow vertex material
-            GameObject snowGround = meshTerrain.Duplicate(disableShadows: !Configuration.snowCastsShadows.Value, removeCollider: true);
+            GameObject snowGround = meshTerrain.Duplicate(disableShadows: !LESettings.snowCastsShadows.Value, removeCollider: true);
             MeshRenderer meshRenderer = snowGround.GetComponent<MeshRenderer>();
             // Duplicate the snow vertex material to allow SRP batching
             Material snowVertexCopy = Instantiate(CurrentSnowVertexMaterial!);
@@ -1107,7 +1104,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
         internal void FreezeWater()
         {
-            if (!Configuration.freezeWater.Value)
+            if (!LESettings.freezeWater.Value)
             {
                 return;
             }
@@ -1263,7 +1260,7 @@ namespace VoxxWeatherPlugin.Behaviours
                                         x.gameObject.scene.name == CurrentSceneName &&
                                         x.transform.position.y > heightThreshold)];
             float additionalMeanFreePath = seededRandom!.NextDouble(fogStrengthMin, fogStrengthMax); // Could be negative
-            if (BlizzardWeather.Instance != null && BlizzardWeather.Instance.IsActive && Configuration.useVolumetricBlizzardFog.Value)
+            if (BlizzardWeather.Instance != null && BlizzardWeather.Instance.IsActive && LESettings.useVolumetricBlizzardFog.Value)
                 additionalMeanFreePath = 0;
             foreach (LocalVolumetricFog fog in fogArray)
             {

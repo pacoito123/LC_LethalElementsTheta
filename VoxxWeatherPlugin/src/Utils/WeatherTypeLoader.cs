@@ -1,11 +1,13 @@
-using UnityEngine;
 using System.Linq;
+using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.VFX;
-using WeatherRegistry;
 using VoxxWeatherPlugin.Weathers;
 using VoxxWeatherPlugin.Behaviours;
-using Unity.Netcode;
-using UnityEngine.Rendering.HighDefinition;
+using WeatherRegistry;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Utils
 {
@@ -54,8 +56,8 @@ namespace VoxxWeatherPlugin.Utils
             heatwaveVFX.visualEffectAsset = heatwaveVFXAsset;
 
             // Configure VFX settings
-            heatwaveVFX.SetFloat("particleSpawnRate", Configuration.HeatwaveParticlesSpawnRate.Value);
-            heatwaveVFX.SetFloat("distortionScale", Configuration.HeathazeDistortionStrength.Value);
+            heatwaveVFX.SetFloat("particleSpawnRate", LESettings.HeatwaveParticlesSpawnRate.Value);
+            heatwaveVFX.SetFloat("distortionScale", LESettings.HeathazeDistortionStrength.Value);
 
             heatwaveContainer.SetActive(true);
 
@@ -126,10 +128,10 @@ namespace VoxxWeatherPlugin.Utils
 
             // Configure VFX settings
 
-            auroraVFX.SetUInt("spawnHeight", Configuration.AuroraHeight.Value);
-            auroraVFX.SetFloat("spawnBoxSize", Configuration.AuroraSpawnAreaBox.Value);
-            auroraVFX.SetFloat("auroraSize", Configuration.AuroraSize.Value);
-            auroraVFX.SetFloat("particleSpawnRate", Configuration.AuroraSpawnRate.Value);
+            auroraVFX.SetUInt("spawnHeight", LESettings.AuroraHeight.Value);
+            auroraVFX.SetFloat("spawnBoxSize", LESettings.AuroraSpawnAreaBox.Value);
+            auroraVFX.SetFloat("auroraSize", LESettings.AuroraSize.Value);
+            auroraVFX.SetFloat("particleSpawnRate", LESettings.AuroraSpawnRate.Value);
 
             flareContainer.SetActive(true);
 
@@ -183,10 +185,10 @@ namespace VoxxWeatherPlugin.Utils
 
             // Fix broken references (WHY, UNITY, WHY)
 
-            VisualEffectAsset? blizzardVFXAsset = Configuration.snowVfxLighting.Value ?
+            VisualEffectAsset? blizzardVFXAsset = LESettings.snowVfxLighting.Value ?
                 WeatherAssetLoader.LoadAsset<VisualEffectAsset>(bundleName, "BlizzardVFXLit") :
                 WeatherAssetLoader.LoadAsset<VisualEffectAsset>(bundleName, "BlizzardVFX");
-            VisualEffectAsset? blizzardWaveVFXAsset = Configuration.blizzardWaveVfxLighting.Value ?
+            VisualEffectAsset? blizzardWaveVFXAsset = LESettings.blizzardWaveVfxLighting.Value ?
                 WeatherAssetLoader.LoadAsset<VisualEffectAsset>(bundleName, "BlizzardWaveVFXLit") :
                 WeatherAssetLoader.LoadAsset<VisualEffectAsset>(bundleName, "BlizzardWaveVFX");
             Shader? blizzardFogShader = WeatherAssetLoader.LoadAsset<Shader>(bundleName, "BlizzardFogVolumetricCollision");
@@ -199,28 +201,28 @@ namespace VoxxWeatherPlugin.Utils
 
             VisualEffect blizzardVFX = blizzardVFXManager.snowVFXContainer!.GetComponent<VisualEffect>();
             blizzardVFX.visualEffectAsset = blizzardVFXAsset;
-            blizzardVFX.SetFloat("spawnRateMultiplier", Configuration.snowParticlesMultiplier.Value);
-            blizzardVFX.SetBool("isCollisionEnabled", Configuration.enableVFXCollisions.Value);
-            blizzardVFX.SetBool("fogEnabled", Configuration.useParticleBlizzardFog.Value);
+            blizzardVFX.SetFloat("spawnRateMultiplier", LESettings.snowParticlesMultiplier.Value);
+            blizzardVFX.SetBool("isCollisionEnabled", LESettings.enableVFXCollisions.Value);
+            blizzardVFX.SetBool("fogEnabled", LESettings.useParticleBlizzardFog.Value);
             Camera blizzardCamera = blizzardVFX.GetComponentInChildren<Camera>(true);
-            blizzardCamera.enabled = Configuration.enableVFXCollisions.Value;
+            blizzardCamera.enabled = LESettings.enableVFXCollisions.Value;
             LocalVolumetricFog blizzardFog = blizzardVFXManager.snowVFXContainer!.GetComponentInChildren<LocalVolumetricFog>(true);
             Material blizzardFogMaterial = blizzardFog.parameters.materialMask;
             blizzardFogMaterial.shader = blizzardFogShader;
             VisualEffect chillWaveVFX = blizzardVFXManager.blizzardWaveContainer!.GetComponentInChildren<VisualEffect>(true);
             chillWaveVFX.visualEffectAsset = blizzardWaveVFXAsset;
-            chillWaveVFX.SetFloat("spawnRateMultiplier", Configuration.blizzardWaveParticlesMultiplier.Value);
-            chillWaveVFX.SetBool("isCollisionEnabled", Configuration.enableVFXCollisions.Value);
-            chillWaveVFX.SetBool("fogEnabled", Configuration.useParticleBlizzardFog.Value);
+            chillWaveVFX.SetFloat("spawnRateMultiplier", LESettings.blizzardWaveParticlesMultiplier.Value);
+            chillWaveVFX.SetBool("isCollisionEnabled", LESettings.enableVFXCollisions.Value);
+            chillWaveVFX.SetBool("fogEnabled", LESettings.useParticleBlizzardFog.Value);
             Camera chillWaveCamera = blizzardVFXManager.blizzardWaveContainer!.GetComponentInChildren<Camera>(true);
-            chillWaveCamera.enabled = Configuration.enableVFXCollisions.Value;
+            chillWaveCamera.enabled = LESettings.enableVFXCollisions.Value;
             blizzardFog = blizzardVFXManager.blizzardWaveContainer!.GetComponentInChildren<LocalVolumetricFog>(true);
             blizzardFogMaterial = blizzardFog.parameters.materialMask;
             blizzardFogMaterial.shader = blizzardFogShader;
             AudioSource blizzardAudio = blizzardVFXManager.GetComponent<AudioSource>();
-            blizzardAudio.volume = Configuration.blizzardAmbientVolume.Value;
+            blizzardAudio.volume = LESettings.blizzardAmbientVolume.Value;
             AudioSource waveAudio = blizzardVFXManager.blizzardWaveContainer.GetComponentInChildren<AudioSource>(true);
-            waveAudio.volume = Configuration.blizzardWaveVolume.Value;
+            waveAudio.volume = LESettings.blizzardWaveVolume.Value;
 
             blizzardContainer.SetActive(true);
 
@@ -277,7 +279,7 @@ namespace VoxxWeatherPlugin.Utils
 
             snowfallWeatherController.VFXManager = snowfallVFXManager;
 
-            VisualEffectAsset? snowVFXAsset = Configuration.snowVfxLighting.Value ?
+            VisualEffectAsset? snowVFXAsset = LESettings.snowVfxLighting.Value ?
                 WeatherAssetLoader.LoadAsset<VisualEffectAsset>(bundleName, "SnowVFXLit") :
                 WeatherAssetLoader.LoadAsset<VisualEffectAsset>(bundleName, "SnowVFX");
 
@@ -290,7 +292,7 @@ namespace VoxxWeatherPlugin.Utils
 
             VisualEffect snowVFX = snowfallVFXManager.snowVFXContainer!.GetComponent<VisualEffect>();
             snowVFX.visualEffectAsset = snowVFXAsset;
-            snowVFX.SetFloat("spawnRateMultiplier", Configuration.snowParticlesMultiplier.Value);
+            snowVFX.SetFloat("spawnRateMultiplier", LESettings.snowParticlesMultiplier.Value);
 
             snowfallContainer.SetActive(true);
 
@@ -364,11 +366,11 @@ namespace VoxxWeatherPlugin.Utils
             levelManipulatorController.snowVertexMaterial!.shader = vertexSnowShader;
             levelManipulatorController.snowVertexOpaqueMaterial!.shader = opaqueVertexSnowShader;
 
-            levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.IsDepthFade, Configuration.softSnowEdges.Value ? 1f : 0f);
-            levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationFadeDistance, Configuration.tesselationFadeDistance.Value);
-            levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationMaxDistance, Configuration.tesselationMaxDistance.Value);
-            levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationFadeDistance, Configuration.tesselationFadeDistance.Value);
-            levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationMaxDistance, Configuration.tesselationMaxDistance.Value);
+            levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.IsDepthFade, LESettings.softSnowEdges.Value ? 1f : 0f);
+            levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationFadeDistance, LESettings.tesselationFadeDistance.Value);
+            levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationMaxDistance, LESettings.tesselationMaxDistance.Value);
+            levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationFadeDistance, LESettings.tesselationFadeDistance.Value);
+            levelManipulatorController.snowVertexMaterial.SetFloat(SnowfallShaderIDs.TessellationMaxDistance, LESettings.tesselationMaxDistance.Value);
 
             return true;
         }

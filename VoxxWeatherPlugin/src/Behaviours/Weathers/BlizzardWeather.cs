@@ -1,21 +1,23 @@
-using UnityEngine;
-using VoxxWeatherPlugin.Utils;
-using System.Collections;
 using GameNetcodeStuff;
+using System.Collections;
+using UnityEngine;
 using UnityEngine.Events;
-using VoxxWeatherPlugin.Behaviours;
 using UnityEngine.Rendering.HighDefinition;
+using VoxxWeatherPlugin.Behaviours;
+using VoxxWeatherPlugin.Utils;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Weathers
 {
     internal class BlizzardWeather : SnowfallWeather
     {
-        public new static BlizzardWeather? Instance { get; internal set; }
+        public static new BlizzardWeather? Instance { get; internal set; }
         // Overrides   
-        internal override float MinSnowHeight => Configuration.minSnowHeightBlizzard.Value;
-        internal override float MaxSnowHeight => Configuration.maxSnowHeightBlizzard.Value;
-        internal override float MinSnowNormalizedTime => Configuration.minTimeToFullSnowBlizzard.Value;
-        internal override float MaxSnowNormalizedTime => Configuration.maxTimeToFullSnowBlizzard.Value;
+        internal override float MinSnowHeight => LESettings.minSnowHeightBlizzard.Value;
+        internal override float MaxSnowHeight => LESettings.maxSnowHeightBlizzard.Value;
+        internal override float MinSnowNormalizedTime => LESettings.minTimeToFullSnowBlizzard.Value;
+        internal override float MaxSnowNormalizedTime => LESettings.maxTimeToFullSnowBlizzard.Value;
 
         [Header("Wind")]
         [SerializeField]
@@ -26,10 +28,10 @@ namespace VoxxWeatherPlugin.Weathers
         internal float windChangeInterval = 30f;
         [SerializeField]
         internal float windForce = 0.25f;
-        internal float MinWindForce => Configuration.minWindForce.Value;
-        internal float MaxWindForce => Configuration.maxWindForce.Value;
-        internal float MinTimeUntilFrostbite => Configuration.minTimeUntilFrostbite.Value;
-        internal float MaxTimeUntilFrostbite => Configuration.maxTimeUntilFrostbite.Value;
+        internal float MinWindForce => LESettings.minWindForce.Value;
+        internal float MaxWindForce => LESettings.maxWindForce.Value;
+        internal float MinTimeUntilFrostbite => LESettings.minTimeUntilFrostbite.Value;
+        internal float MaxTimeUntilFrostbite => LESettings.maxTimeUntilFrostbite.Value;
         internal Coroutine? windChangeCoroutine;
         [SerializeField]
         internal bool isLocalPlayerInWind = false;
@@ -39,14 +41,14 @@ namespace VoxxWeatherPlugin.Weathers
         [Header("Chill Waves")]
         [SerializeField]
         internal int numOfWaves;
-        internal int MinWaveCount => Configuration.minWaveCount.Value;
-        internal int MaxWaveCount => Configuration.maxWaveCount.Value;
+        internal int MinWaveCount => LESettings.minWaveCount.Value;
+        internal int MaxWaveCount => LESettings.maxWaveCount.Value;
         [SerializeField]
         internal float timeSinceWave;
         [SerializeField]
         internal float waveSpeed;
-        internal float MinWaveInterval => Configuration.minWaveInterval.Value;
-        internal float MaxWaveInterval => Configuration.maxWaveInterval.Value;
+        internal float MinWaveInterval => LESettings.minWaveInterval.Value;
+        internal float MaxWaveInterval => LESettings.maxWaveInterval.Value;
         [SerializeField]
         internal float waveInterval = 90f;
         internal Coroutine? chillWaveCoroutine;
@@ -352,7 +354,7 @@ namespace VoxxWeatherPlugin.Weathers
         {
             base.Update();
             if (blizzardCollisionCamera != null)
-                blizzardCollisionCamera.LimitFrameRate(Configuration.collisionCamerasFPS.Value);
+                blizzardCollisionCamera.LimitFrameRate(LESettings.collisionCamerasFPS.Value);
         }
 
         internal override void Reset()
@@ -397,10 +399,10 @@ namespace VoxxWeatherPlugin.Weathers
             if (blizzardFog == null)
                 blizzardFog = snowVFXContainer != null ? snowVFXContainer.GetComponentInChildren<LocalVolumetricFog>(true) : null;
 
-            if (Configuration.useVolumetricBlizzardFog.Value && blizzardFog != null)
+            if (LESettings.useVolumetricBlizzardFog.Value && blizzardFog != null)
             {
                 blizzardFog.gameObject.SetActive(true);
-                blizzardFog.parameters.meanFreePath = SeededRandom.NextDouble(Configuration.blizzardFogMeanFreePathMin.Value, Configuration.blizzardFogMeanFreePathMax.Value);
+                blizzardFog.parameters.meanFreePath = SeededRandom.NextDouble(LESettings.blizzardFogMeanFreePathMin.Value, LESettings.blizzardFogMeanFreePathMax.Value);
             }
 
         }

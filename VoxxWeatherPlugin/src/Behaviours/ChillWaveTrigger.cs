@@ -1,9 +1,11 @@
-using UnityEngine;
 using GameNetcodeStuff;
-using VoxxWeatherPlugin.Utils;
 using System.Collections;
-using VoxxWeatherPlugin.Weathers;
+using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
+using VoxxWeatherPlugin.Utils;
+using VoxxWeatherPlugin.Weathers;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
@@ -13,7 +15,7 @@ namespace VoxxWeatherPlugin.Behaviours
         private AudioSource[]? audioSources;
         public Camera? collisionCamera;
         private LocalVolumetricFog? blizzardWaveFog;
-        internal int WaveDamage => Configuration.chillingWaveDamage.Value;
+        internal int WaveDamage => LESettings.chillingWaveDamage.Value;
         [SerializeField]
         internal float waveForce = 40f;
         internal Coroutine? temperatureChangeCoroutine;
@@ -80,7 +82,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 Vector3 playerPosition = GameNetworkManager.Instance.localPlayerController.transform.position;
                 Vector3 playerPositionLocal = transform.InverseTransformPoint(playerPosition);
                 collisionCamera.transform.localPosition = new Vector3(playerPositionLocal.x, collisionCamera.transform.localPosition.y, collisionCamera.transform.localPosition.z);
-                collisionCamera.LimitFrameRate(Configuration.collisionCamerasFPS.Value);
+                collisionCamera.LimitFrameRate(LESettings.collisionCamerasFPS.Value);
             }
         }
 
@@ -113,7 +115,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
             if (blizzardWaveFog != null)
             {
-                blizzardWaveFog.gameObject.SetActive(Configuration.useVolumetricBlizzardFog.Value);
+                blizzardWaveFog.gameObject.SetActive(LESettings.useVolumetricBlizzardFog.Value);
                 blizzardWaveFog.parameters.size = new Vector3(waveCollider.size.x, waveCollider.size.z, waveCollider.size.y);
                 blizzardWaveFog.transform.localPosition = waveCollider.center;
             }

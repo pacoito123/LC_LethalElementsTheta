@@ -1,11 +1,13 @@
-﻿using UnityEngine;
+﻿using GameNetcodeStuff;
 using System.Linq;
 using System.Collections.Generic;
-using GameNetcodeStuff;
-using VoxxWeatherPlugin.Utils;
+using UnityEngine;
 using UnityEngine.Rendering;
 using Unity.Collections;
 using VoxxWeatherPlugin.Patches;
+using VoxxWeatherPlugin.Utils;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
@@ -17,9 +19,7 @@ namespace VoxxWeatherPlugin.Behaviours
         [Header("Compute Shader")]
         [SerializeField]
         internal ComputeShader? snowThicknessComputeShader;
-        [SerializeField]
-        internal int MaxEntityCount => Configuration.trackedEntityNumber.Value;
-        [SerializeField]
+        internal int MaxEntityCount => LESettings.trackedEntityNumber.Value;
         internal LevelManipulator? snowfallData => LevelManipulator.Instance;
         private int kernelHandle;
         [SerializeField]
@@ -45,7 +45,6 @@ namespace VoxxWeatherPlugin.Behaviours
         [Header("Ground")]
         [SerializeField]
         internal string[] groundTags = ["Grass", "Gravel", "Snow", "Rock"];
-        [SerializeField]
         internal bool IsOnNaturalGround => IsPlayerOnNaturalGround();
         [SerializeField]
         internal bool isOnIce = false;
@@ -276,16 +275,10 @@ namespace VoxxWeatherPlugin.Behaviours
         public float GetSnowThickness(MonoBehaviour entity)
         {
             EntitySnowData? data = GetEntityData(entity);
-            if (!data.HasValue)
-            {
-                return 0f;
-            }
-            if (entity == GameNetworkManager.Instance.localPlayerController)
-            {
-                return Mathf.Clamp(data.Value.snowThickness - snowThicknessOffset, 0, 2 * (LevelManipulator.Instance != null
-                    ? LevelManipulator.Instance.finalSnowHeight : 0f));
-            }
-            return data.Value.snowThickness;
+            return !data.HasValue ? 0f : (entity == GameNetworkManager.Instance.localPlayerController
+                ? Mathf.Clamp(data.Value.snowThickness - snowThicknessOffset, 0, 2 * (LevelManipulator.Instance != null
+                    ? LevelManipulator.Instance.finalSnowHeight : 0f))
+                : data.Value.snowThickness);
         }
 
         /// <summary>
@@ -298,11 +291,7 @@ namespace VoxxWeatherPlugin.Behaviours
         /// </remarks>
         public EntitySnowData? GetEntityData(MonoBehaviour entity)
         {
-            if (entitySnowDataMap.TryGetValue(entity, out int index))
-            {
-                return entitySnowDataOutArray?[index];
-            }
-            return null;
+            return entitySnowDataMap.TryGetValue(entity, out int index) ? (entitySnowDataOutArray?[index]) : null;
         }
 
         /// <summary>
@@ -371,7 +360,7 @@ namespace VoxxWeatherPlugin.Behaviours
         {
             if (entitySnowDataMap.TryGetValue(entity, out int index))
             {
-                entitySnowDataMap.Remove(entity);
+                _ = entitySnowDataMap.Remove(entity);
                 entitySnowDataInArray?[index].Reset();
                 entitySnowDataOutArray?[index].Reset();
                 freeIndices.Push(index);

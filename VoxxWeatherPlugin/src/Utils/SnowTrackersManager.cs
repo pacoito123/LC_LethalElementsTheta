@@ -1,9 +1,11 @@
-using System.Collections.Generic;
+using GameNetcodeStuff;
 using UnityEngine;
 using UnityEngine.VFX;
-using GameNetcodeStuff;
 using VoxxWeatherPlugin.Behaviours;
 using VoxxWeatherPlugin.Patches;
+using System.Collections.Generic;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Utils
 {
@@ -89,7 +91,7 @@ namespace VoxxWeatherPlugin.Utils
             {
                 //rotate around local Y axis by 90 degrees to align with the player's camera
                 trackerObj.transform.localRotation = Quaternion.Euler(0, 90, 0);
-                snowShovelDict.TryAdd(obj, snowTrackerData);
+                _ = snowShovelDict.TryAdd(obj, snowTrackerData);
             }
             else
             {
@@ -97,7 +99,7 @@ namespace VoxxWeatherPlugin.Utils
                 trackerVFX.SetFloat("particleSize", particleSize);
                 trackerVFX.SetFloat("lifetimeMultiplier", lifetimeMultiplier);
                 trackerVFX.SetFloat("footprintStrength", footprintStrength);
-                snowTrackersDict.TryAdd(obj, snowTrackerData);
+                _ = snowTrackersDict.TryAdd(obj, snowTrackerData);
             }
         }
 
@@ -106,13 +108,12 @@ namespace VoxxWeatherPlugin.Utils
         /// </summary>
         /// <param name="obj">The object to track.</param>
         /// <param name="enableTracker">Whether to enable the tracker.</param>
-        /// <param name="offset">The offset to apply to the tracker's position.</param>
         /// <remarks>
         /// This method should be called every frame to keep the tracker up to date.
         /// </remarks>
         public static void UpdateFootprintTracker(MonoBehaviour obj, bool enableTracker)
         {
-            if (!Configuration.enableSnowTracks.Value)
+            if (!LESettings.enableSnowTracks.Value)
                 return;
 
             if (snowTrackersDict.TryGetValue(obj, out SnowTrackerData trackerData))
@@ -157,7 +158,7 @@ namespace VoxxWeatherPlugin.Utils
                                                 float footprintStrength,
                                                 Vector3 positionOffset = default)
         {
-            if (!Configuration.enableSnowTracks.Value)
+            if (!LESettings.enableSnowTracks.Value)
                 return;
 
             //Load different footprints for player and other objects
@@ -245,13 +246,13 @@ namespace VoxxWeatherPlugin.Utils
 
             foreach (MonoBehaviour key in keysToRemove)
             {
-                trackersDict.Remove(key);
+                _ = trackersDict.Remove(key);
             }
         }
 
         internal static void CleanupTrackers(bool enable = false)
         {
-            if (!Configuration.enableSnowTracks.Value)
+            if (!LESettings.enableSnowTracks.Value)
                 return;
 
             if (snowTrackersDict.Count > 0 || snowShovelDict.Count > 0)

@@ -1,13 +1,15 @@
 ﻿using BepInEx;
-using HarmonyLib;
-using VoxxWeatherPlugin.Patches;
-using VoxxWeatherPlugin.Utils;
+using BepInEx.Bootstrap;
 using BepInEx.Logging;
+using HarmonyLib;
 using System.Reflection;
 using System;
 using System.Collections.Generic;
-using BepInEx.Bootstrap;
 using VoxxWeatherPlugin.Compatibility;
+using VoxxWeatherPlugin.Patches;
+using VoxxWeatherPlugin.Utils;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin
 {
@@ -19,20 +21,24 @@ namespace VoxxWeatherPlugin
     // [BepInDependency("WeatherTweaks", BepInDependency.DependencyFlags.SoftDependency)] Disabled due to dependency loop
     public class VoxxWeatherPlugin : BaseUnityPlugin
     {
-        private Harmony harmony;
-        public static VoxxWeatherPlugin instance;
-        internal static ManualLogSource StaticLogger;
+        internal static ManualLogSource StaticLogger { get; private set; } = null!;
+
+        internal static Harmony Harmony { get; private set; } = null!;
+        public static Configuration LESettings { get; private set; } = null!;
 
         private void Awake()
         {
-            instance = this;
             StaticLogger = Logger;
-            harmony = new Harmony(PluginInfo.PLUGIN_GUID);
 
-            // NetcodePatcher();
-
-            // Pass plugin metadata to the configuration class
-            Configuration.Initialize(Info.Metadata);
+            try
+            {
+                LESettings = new(Config);
+                Harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+            }
+            catch (Exception e)
+            {
+                // StaticLogger.LogError($"Error while initializing '{PLUGIN_NAME}': {e}");
+            }
 
             if (Chainloader.PluginInfos.ContainsKey("imabatby.lethallevelloader"))
             {
@@ -41,54 +47,54 @@ namespace VoxxWeatherPlugin
             }
 
             WeatherTypeLoader.LoadLevelManipulator();
-            harmony.PatchAll(typeof(BasicPatches));
+            Harmony.PatchAll(typeof(BasicPatches));
 
-            if (Configuration.EnableSolarFlareWeather.Value)
+            if (LESettings.EnableSolarFlareWeather.Value)
             {
                 WeatherTypeLoader.RegisterFlareWeather();
-                harmony.PatchAll(typeof(FlarePatches));
-                if (!Configuration.DistortOnlyVoiceDuringSolarFlare.Value)
+                Harmony.PatchAll(typeof(FlarePatches));
+                if (!LESettings.DistortOnlyVoiceDuringSolarFlare.Value)
                 {
-                    harmony.PatchAll(typeof(FlareOptionalWalkiePatches));
+                    Harmony.PatchAll(typeof(FlareOptionalWalkiePatches));
                     Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} optional solar flare patches successfully applied!");
                 }
                 Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} solar flare patches successfully applied!");
             }
 
-            if (Configuration.EnableHeatwaveWeather.Value)
+            if (LESettings.EnableHeatwaveWeather.Value)
             {
                 WeatherTypeLoader.RegisterHeatwaveWeather();
-                harmony.PatchAll(typeof(HeatwavePatches));
+                Harmony.PatchAll(typeof(HeatwavePatches));
                 Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} heatwave patches successfully applied!");
             }
 
-            if (Configuration.EnableToxicSmogWeather.Value)
+            if (LESettings.EnableToxicSmogWeather.Value)
             {
                 WeatherTypeLoader.RegisterToxicSmogWeather();
-                harmony.PatchAll(typeof(ToxicPatches));
+                Harmony.PatchAll(typeof(ToxicPatches));
                 Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} toxic smog patches successfully applied!");
             }
 
-            if (Configuration.EnableBlizzardWeather.Value || Configuration.EnableSnowfallWeather.Value)
+            if (LESettings.EnableBlizzardWeather.Value || LESettings.EnableSnowfallWeather.Value)
             {
-                harmony.PatchAll(typeof(SnowPatches));
+                Harmony.PatchAll(typeof(SnowPatches));
                 // harmony.PatchAll(typeof(SnowPatchesOptional));
                 Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} snow patches successfully applied!");
 
-                if (Configuration.EnableSnowfallWeather.Value)
+                if (LESettings.EnableSnowfallWeather.Value)
                 {
                     WeatherTypeLoader.RegisterSnowfallWeather();
                 }
 
-                if (Configuration.EnableBlizzardWeather.Value)
+                if (LESettings.EnableBlizzardWeather.Value)
                 {
-                    harmony.PatchAll(typeof(BlizzardPatches));
+                    Harmony.PatchAll(typeof(BlizzardPatches));
                     Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} blizzard patches successfully applied!");
                     WeatherTypeLoader.RegisterBlizzardWeather();
                 }
 
                 MethodInfo patchMethod = typeof(SnowPatches).GetMethod("EnemySnowHindrancePatch", BindingFlags.NonPublic | BindingFlags.Static);
-                DynamicHarmonyPatcher.PatchAllTypes(typeof(EnemyAI), "Update", patchMethod, PatchType.Postfix, harmony, SnowPatches.unaffectedEnemyTypes);
+                DynamicHarmonyPatcher.PatchAllTypes(typeof(EnemyAI), "Update", patchMethod, PatchType.Postfix, Harmony, SnowPatches.unaffectedEnemyTypes);
                 Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} enemy snow hindrance patches successfully applied!");
 
             }
@@ -115,39 +121,11 @@ namespace VoxxWeatherPlugin
             Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.None);
 #endif
         }
-
-        /* private static void NetcodePatcher()
-        {
-            Type[] types;
-            try
-            {
-                types = Assembly.GetExecutingAssembly().GetTypes();
-            }
-            catch (ReflectionTypeLoadException e)
-            {
-                types = [.. e.Types.Where(type => type != null)];
-            }
-
-            foreach (Type type in types)
-            {
-                try
-                {
-                    foreach (MethodInfo method in type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-                    {
-                        if (method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false).Length > 0)
-                        {
-                            _ = method.Invoke(null, null);
-                        }
-                    }
-                }
-                catch (Exception) { } // What error? There was never an error, don't worry about it...
-            }
-        } */
     }
 
     public static class Debug
     {
-        private static ManualLogSource Logger => VoxxWeatherPlugin.StaticLogger;
+        private static ManualLogSource Logger => StaticLogger;
 
         public static void Log(string message) => Logger.LogInfo(message);
         public static void LogError(string message) => Logger.LogError(message);
@@ -166,16 +144,17 @@ namespace VoxxWeatherPlugin
 
     public class DynamicHarmonyPatcher
     {
-
         public static void PatchAllTypes(Type baseType, string methodToPatch, MethodInfo patchMethod,
                                          PatchType patchType, Harmony harmonyInstance, HashSet<Type>? blackList = null)
         {
             List<Type> derivedTypes = FindDerivedTypes(baseType, methodToPatch);
+
             // Filter out blacklisted types
             if (blackList != null)
             {
                 _ = derivedTypes.RemoveAll(blackList.Contains);
             }
+
             PatchMethodsInTypes(derivedTypes, methodToPatch, patchMethod, patchType, harmonyInstance);
         }
 
@@ -184,7 +163,7 @@ namespace VoxxWeatherPlugin
             List<Type> derivedTypes = [];
             Assembly[] assemblies;
             // Get all loaded assemblies in the current AppDomain
-            if (Configuration.patchModdedEnemies.Value)
+            if (LESettings.patchModdedEnemies.Value)
             {
                 Debug.LogDebug("Searching for modded enemy types...");
                 assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -289,7 +268,5 @@ namespace VoxxWeatherPlugin
                 }
             }
         }
-
     }
-
 }

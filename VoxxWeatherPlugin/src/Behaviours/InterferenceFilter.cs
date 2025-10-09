@@ -1,6 +1,8 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+using UnityEngine;
 using VoxxWeatherPlugin.Utils;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
@@ -26,7 +28,7 @@ namespace VoxxWeatherPlugin.Behaviours
         {
             sampleRate = AudioSettings.outputSampleRate;
             random = new System.Random(42);
-            noiseLevel = Configuration.NoiseStaticLevel.Value;
+            noiseLevel = LESettings.NoiseStaticLevel.Value;
         }
 
         private void OnAudioFilterRead(float[] data, int channels)

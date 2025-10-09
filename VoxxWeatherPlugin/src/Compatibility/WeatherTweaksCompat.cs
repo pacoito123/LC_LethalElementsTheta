@@ -1,7 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
-using VoxxWeatherPlugin.Utils;
 using WeatherRegistry;
 using WeatherTweaks.Definitions;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Compatibility
 {
@@ -24,20 +25,20 @@ namespace VoxxWeatherPlugin.Compatibility
                 return;
             }
 
-            if (Configuration.EnableSolarFlareWeather.Value)
+            if (LESettings.EnableSolarFlareWeather.Value)
             {
                 new CombinedWeatherType("Eclipsed Flare",
                                                                 [new WeatherNameResolvable("solarflare"), new WeatherTypeResolvable(LevelWeatherType.Eclipsed)]
                 );
 
-                if (Configuration.EnableSnowfallWeather.Value)
+                if (LESettings.EnableSnowfallWeather.Value)
                 {
                     new CombinedWeatherType("Snowfall + Solar Flare",
                                                             [new WeatherNameResolvable("snowfall"), new WeatherNameResolvable("solarflare")]
                     );
                 }
 
-                if (Configuration.EnableHeatwaveWeather.Value)
+                if (LESettings.EnableHeatwaveWeather.Value)
                 {
                     new ProgressingWeatherType("Solar Flare > Heatwave",
                                                                                 new WeatherNameResolvable("solarflare"),
@@ -53,7 +54,7 @@ namespace VoxxWeatherPlugin.Compatibility
                 }
             }
 
-            if (Configuration.EnableSnowfallWeather.Value)
+            if (LESettings.EnableSnowfallWeather.Value)
             {
                 new ProgressingWeatherType("Snowfall > Rainy",
                                                                                     new WeatherNameResolvable("snowfall"),

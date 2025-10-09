@@ -1,12 +1,14 @@
-﻿using HarmonyLib;
-using VoxxWeatherPlugin.Weathers;
-using UnityEngine;
+﻿using GameNetcodeStuff;
+using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using UnityEngine;
 using UnityEngine.AI;
 using VoxxWeatherPlugin.Behaviours;
 using VoxxWeatherPlugin.Utils;
-using GameNetcodeStuff;
+using VoxxWeatherPlugin.Weathers;
+
+using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Patches
 {
@@ -16,9 +18,9 @@ namespace VoxxWeatherPlugin.Patches
         internal static System.Random random = new();
         internal static System.Random seededRandom = new(42);
         internal static Transform? originalTeleporterPosition;
-        internal static float batteryDrainMultiplier => Mathf.Clamp(Configuration.BatteryDrainMultiplier.Value, 0, 99);
-        internal static bool drainBatteryInFacility => Configuration.DrainBatteryInFacility.Value;
-        internal static bool doorMalfunctionEnabled => Configuration.DoorMalfunctionEnabled.Value;
+        internal static float batteryDrainMultiplier => Mathf.Clamp(LESettings.BatteryDrainMultiplier.Value, 0, 99);
+        internal static bool drainBatteryInFacility => LESettings.DrainBatteryInFacility.Value;
+        internal static bool doorMalfunctionEnabled => LESettings.DoorMalfunctionEnabled.Value;
 
         [HarmonyPatch(typeof(PlayerVoiceIngameSettings), "OnDisable")]
         [HarmonyPrefix]
