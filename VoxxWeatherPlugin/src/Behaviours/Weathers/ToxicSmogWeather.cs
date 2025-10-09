@@ -127,7 +127,7 @@ namespace VoxxWeatherPlugin.Weathers
                 toxicVolumetricFog.gameObject.SetActive(true);
             }
 
-            if (LLLCompat.IsActive)
+            if (LLLCompat.Enabled)
             {
                 LLLCompat.TagRecolorToxic();
             }

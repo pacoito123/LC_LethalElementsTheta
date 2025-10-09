@@ -40,12 +40,6 @@ namespace VoxxWeatherPlugin
                 // StaticLogger.LogError($"Error while initializing '{PLUGIN_NAME}': {e}");
             }
 
-            if (Chainloader.PluginInfos.ContainsKey("imabatby.lethallevelloader"))
-            {
-                Logger.LogDebug("LethalLevelLoader detected!");
-                LLLCompat.Init();
-            }
-
             WeatherTypeLoader.LoadLevelManipulator();
             Harmony.PatchAll(typeof(BasicPatches));
 
@@ -102,16 +96,14 @@ namespace VoxxWeatherPlugin
             // Delayed registering of the combined weathers for WeatherTweaks compatibility
             WeatherRegistry.EventManager.BeforeSetupStart.AddListener(() =>
             {
-                if (Chainloader.PluginInfos.ContainsKey("WeatherTweaks"))
+                if (WeatherTweaksCompat.Enabled)
                 {
                     Logger.LogDebug("Weather Tweaks detected!");
-                    WeatherTweaksCompat.Init();
                     WeatherTweaksCompat.RegisterCombinedWeathers();
                 }
             });
 
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
-
 
 #if DEBUG
             // disable overhead of stack trace in dev build

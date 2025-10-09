@@ -6,22 +6,28 @@ using VoxxWeatherPlugin.Behaviours;
 
 namespace VoxxWeatherPlugin.Compatibility
 {
-    public static class LLLCompat
+    internal sealed class LLLCompat
     {
-        public static bool IsActive { get; private set; }
+        /// <summary>
+        ///     Whether LethalLevelLoader is present in the BepInEx Chainloader or not.
+        /// </summary>
+        public static bool Enabled
+        {
+            get
+            {
+                _enabled ??= BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("imabatby.lethallevelloader");
+
+                return (bool)_enabled;
+            }
+        }
+        private static bool? _enabled;
+
         private static readonly string snowColorTag = "voxxSnowColor";
         private static readonly string snowOverlayColorTag = "voxxSnowOverlayColor";
         private static readonly string blizzardFogColorTag = "voxxBlizzardFogColor";
         private static readonly string blizzardCrystalsColorTag = "voxxBlizzardCrystalsColor";
         private static readonly string toxicFumesColorTag = "voxxToxicFumesColor";
         private static readonly string toxicFogColorTag = "voxxToxicFogColor";
-
-
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void Init()
-        {
-            IsActive = true;
-        }
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         public static void TagRecolorSnow()
