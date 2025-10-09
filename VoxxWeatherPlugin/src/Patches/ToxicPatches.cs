@@ -1,6 +1,5 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using LethalLib.Modules;
 using UnityEngine;
 using VoxxWeatherPlugin.Utils;
 using VoxxWeatherPlugin.Weathers;
@@ -8,13 +7,13 @@ using VoxxWeatherPlugin.Weathers;
 namespace VoxxWeatherPlugin.Patches
 {
     [HarmonyPatch]
-    internal class ToxicPatches
+    internal sealed class ToxicPatches
     {
         private static float DamageInterval => Configuration.ToxicDamageInterval.Value;
         private static int DamageAmount => Configuration.ToxicDamageAmount.Value;
         private static float PoisoningRemovalMultiplier => Configuration.PoisoningRemovalMultiplier.Value;
 
-        private static float damageTimer = 0f;
+        private static float damageTimer;
 
         [HarmonyPatch(typeof(PlayerControllerB), "LateUpdate")]
         [HarmonyPostfix]

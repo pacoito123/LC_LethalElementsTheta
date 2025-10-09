@@ -22,7 +22,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 }
                 else if (malfunctionData.malfunctionObject is NetworkBehaviour malfunctionObject)
                 {
-                    NetworkBehaviourReference malfunctionDataRef = new NetworkBehaviourReference(malfunctionObject);
+                    NetworkBehaviourReference malfunctionDataRef = new(malfunctionObject);
                     ResolveMalfunctionClientRpc(malfunctionDataRef);
                 }
             }

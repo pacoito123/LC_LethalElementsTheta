@@ -2,8 +2,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.VFX;
-using UnityEngine.Rendering;
 using UnityEngine.AI;
 using VoxxWeatherPlugin.Behaviours;
 using VoxxWeatherPlugin.Patches;
@@ -177,10 +175,10 @@ namespace VoxxWeatherPlugin.Weathers
                 PlayerEffectsManager.isUnderSnow = SnowThicknessManager.Instance.feetPositionY + snowThickness >= localPlayerEyeY - eyeBias;
 
                 // If the user decreases frostbite damage from the default value (10), add additional slowdown
-                float metaSnowThickness = Mathf.Clamp01(1 - SnowPatches.FrostbiteDamage / 10f) * PlayerEffectsManager.ColdSeverity;
+                float metaSnowThickness = Mathf.Clamp01(1 - (SnowPatches.FrostbiteDamage / 10f)) * PlayerEffectsManager.ColdSeverity;
 
                 // Slow down the player if they are in snow (only if snow thickness is above 0.4, caps at 2.5 height)
-                snowMovementHindranceMultiplier = 1 + 5 * Mathf.Clamp01((snowThickness + metaSnowThickness - 0.4f) / 2.1f);
+                snowMovementHindranceMultiplier = 1 + (5 * Mathf.Clamp01((snowThickness + metaSnowThickness - 0.4f) / 2.1f));
             }
             else
             {
@@ -203,8 +201,7 @@ namespace VoxxWeatherPlugin.Weathers
         {
             if (SnowfallWeather.Instance != null && SnowfallWeather.Instance.IsActive) // to avoid setting the depth texture for blizzard
             {
-                HDRPCameraOrTextureBinder? depthBinder = snowVFXContainer!.GetComponent<HDRPCameraOrTextureBinder>();
-                if (depthBinder != null)
+                if (snowVFXContainer!.TryGetComponent(out HDRPCameraOrTextureBinder depthBinder))
                 {
                     Debug.LogDebug("Binding depth texture to snow VFX");
                     depthBinder.depthTexture = LevelManipulator.Instance!.levelDepthmapUnblurred; // bind the baked depth texture
@@ -310,14 +307,13 @@ namespace VoxxWeatherPlugin.Weathers
             // Spawn a gift box for each player in the game. Cap at 4 gifts so users with more than 4 players don't get too many
             int numGifts = Mathf.Min(GameNetworkManager.Instance.connectedPlayers, 4);
 
-            NavMeshHit hit;
             for (int i = 0; i < numGifts; i++)
             {
                 int giftValue = SeededRandom?.Next(1, 24) ?? 1;
 
                 //Spawn gifts in a ring around the tree by sampling the NavMesh around it
-                Vector3 giftPosition = treePosition + 2f * new Vector3(Mathf.Cos(i * 2 * Mathf.PI / numGifts), 0, Mathf.Sin(i * 2 * Mathf.PI / numGifts));
-                if (NavMesh.SamplePosition(giftPosition, out hit, 2f, NavMesh.AllAreas))
+                Vector3 giftPosition = treePosition + (2f * new Vector3(Mathf.Cos(i * 2 * Mathf.PI / numGifts), 0, Mathf.Sin(i * 2 * Mathf.PI / numGifts)));
+                if (NavMesh.SamplePosition(giftPosition, out NavMeshHit hit, 2f, NavMesh.AllAreas))
                 {
                     giftBoxItem.SpawnAtPosition(hit.position, giftValue);
                 }

@@ -1,12 +1,10 @@
 ﻿using UnityEngine;
-using VoxxWeatherPlugin.Weathers;
 using System.Linq;
 using System.Collections.Generic;
 using GameNetcodeStuff;
 using VoxxWeatherPlugin.Utils;
 using UnityEngine.Rendering;
 using Unity.Collections;
-using UnityEngine.VFX;
 using VoxxWeatherPlugin.Patches;
 
 namespace VoxxWeatherPlugin.Behaviours
@@ -14,7 +12,7 @@ namespace VoxxWeatherPlugin.Behaviours
     internal class SnowThicknessManager : MonoBehaviour
     {
         public static SnowThicknessManager? Instance;
-        internal int errorCount = 0;
+        internal int errorCount;
 
         [Header("Compute Shader")]
         [SerializeField]
@@ -39,10 +37,10 @@ namespace VoxxWeatherPlugin.Behaviours
         private bool canDispatch = true;
 
         // Mappings
-        public Dictionary<MonoBehaviour, int> entitySnowDataMap = new Dictionary<MonoBehaviour, int>();
-        private Stack<int> freeIndices = new Stack<int>();
-        internal Dictionary<GameObject, int> groundToIndex = new Dictionary<GameObject, int>();
-        internal HashSet<GameObject> iceObjects = new HashSet<GameObject>();
+        public Dictionary<MonoBehaviour, int> entitySnowDataMap = [];
+        private Stack<int> freeIndices = new();
+        internal Dictionary<GameObject, int> groundToIndex = [];
+        internal HashSet<GameObject> iceObjects = [];
 
         [Header("Ground")]
         [SerializeField]
@@ -136,7 +134,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 inputNeedsUpdate = false;
 #if DEBUG
                 reverbTrigger = GameNetworkManager.Instance.localPlayerController.currentAudioTrigger;
-                groundsInfo = new List<string>();
+                groundsInfo = [];
                 foreach (KeyValuePair<GameObject, int> kvp in groundToIndex)
                 {
                     groundsInfo.Add($"{kvp.Key.name} : {kvp.Value}");
@@ -153,7 +151,7 @@ namespace VoxxWeatherPlugin.Behaviours
                     entityInfo[kvp.Value] = $"{kvp.Key.gameObject.name}: wPos {snowData.w}, texPos {snowData.uv}, texIndex {snowData.textureIndex}, snowThickness {GetSnowThickness(kvp.Key)}";
                 }
 
-                entityHitInfo = new List<string>();
+                entityHitInfo = [];
                 foreach (KeyValuePair<MonoBehaviour, RaycastHit> kvp in entityHitData)
                 {
                     if (kvp.Key == null)
@@ -337,7 +335,7 @@ namespace VoxxWeatherPlugin.Behaviours
                 SnowPatches.IsSnowActive())
             {
                 // For players, check hits.Length objects below the first hit object because snow might protrude through it due to precision errors in the depth buffer
-                int numHits = Physics.RaycastNonAlloc(new Ray(hit.point - 0.05f * Vector3.up, Vector3.down), hits,
+                int numHits = Physics.RaycastNonAlloc(new Ray(hit.point - (0.05f * Vector3.up), Vector3.down), hits,
                     LevelManipulator.Instance != null ? LevelManipulator.Instance.finalSnowHeight : 0f);
                 for (int i = 0; i < numHits; i++)
                 {

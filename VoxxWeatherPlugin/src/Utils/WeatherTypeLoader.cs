@@ -4,7 +4,6 @@ using UnityEngine.VFX;
 using WeatherRegistry;
 using VoxxWeatherPlugin.Weathers;
 using VoxxWeatherPlugin.Behaviours;
-using UnityEngine.Rendering;
 using Unity.Netcode;
 using UnityEngine.Rendering.HighDefinition;
 
@@ -26,9 +25,9 @@ namespace VoxxWeatherPlugin.Utils
             }
 
             heatwavePrefab.SetActive(false);
-            GameObject heatwaveContainer = GameObject.Instantiate(heatwavePrefab);
+            GameObject heatwaveContainer = Object.Instantiate(heatwavePrefab);
             heatwaveContainer.hideFlags = HideFlags.HideAndDontSave;
-            GameObject.DontDestroyOnLoad(heatwaveContainer);
+            Object.DontDestroyOnLoad(heatwaveContainer);
 
             HeatwaveWeather heatwaveWeatherController = heatwaveContainer.GetComponentInChildren<HeatwaveWeather>(true);
             GameObject effectPermanentObject = heatwaveWeatherController.gameObject;
@@ -96,9 +95,9 @@ namespace VoxxWeatherPlugin.Utils
             }
 
             flareWeatherPrefab.SetActive(false);
-            GameObject flareContainer = GameObject.Instantiate(flareWeatherPrefab);
+            GameObject flareContainer = Object.Instantiate(flareWeatherPrefab);
             flareContainer.hideFlags = HideFlags.HideAndDontSave;
-            GameObject.DontDestroyOnLoad(flareContainer);
+            Object.DontDestroyOnLoad(flareContainer);
 
             SolarFlareWeather flareWeatherController = flareContainer.GetComponentInChildren<SolarFlareWeather>(true);
             GameObject effectPermanentObject = flareWeatherController.gameObject;
@@ -166,9 +165,9 @@ namespace VoxxWeatherPlugin.Utils
             }
 
             blizzardPrefab.SetActive(false);
-            GameObject blizzardContainer = GameObject.Instantiate(blizzardPrefab);
+            GameObject blizzardContainer = Object.Instantiate(blizzardPrefab);
             blizzardContainer.hideFlags = HideFlags.HideAndDontSave;
-            GameObject.DontDestroyOnLoad(blizzardContainer);
+            Object.DontDestroyOnLoad(blizzardContainer);
 
             BlizzardWeather blizzardWeatherController = blizzardContainer.GetComponentInChildren<BlizzardWeather>(true);
             BlizzardWeather.Instance = blizzardWeatherController;
@@ -262,9 +261,9 @@ namespace VoxxWeatherPlugin.Utils
                 return;
             }
             snowfallPrefab.SetActive(false);
-            GameObject snowfallContainer = GameObject.Instantiate(snowfallPrefab);
+            GameObject snowfallContainer = Object.Instantiate(snowfallPrefab);
             snowfallContainer.hideFlags = HideFlags.HideAndDontSave;
-            GameObject.DontDestroyOnLoad(snowfallContainer);
+            Object.DontDestroyOnLoad(snowfallContainer);
 
             SnowfallWeather snowfallWeatherController = snowfallContainer.GetComponentInChildren<SnowfallWeather>(true);
             SnowfallWeather.Instance = snowfallWeatherController;
@@ -337,8 +336,8 @@ namespace VoxxWeatherPlugin.Utils
             }
 
             levelManipulatorPrefab.SetActive(true);
-            GameObject levelManipulator = GameObject.Instantiate(levelManipulatorPrefab);
-            GameObject.DontDestroyOnLoad(levelManipulator);
+            GameObject levelManipulator = Object.Instantiate(levelManipulatorPrefab);
+            Object.DontDestroyOnLoad(levelManipulator);
             levelManipulator.hideFlags = HideFlags.HideAndDontSave;
 
             LevelManipulator levelManipulatorController = levelManipulator.GetComponent<LevelManipulator>();
@@ -397,9 +396,9 @@ namespace VoxxWeatherPlugin.Utils
                 return;
             }
             toxicSmogPrefab.SetActive(false);
-            GameObject toxicSmogContainer = GameObject.Instantiate(toxicSmogPrefab);
+            GameObject toxicSmogContainer = Object.Instantiate(toxicSmogPrefab);
             toxicSmogContainer.hideFlags = HideFlags.HideAndDontSave;
-            GameObject.DontDestroyOnLoad(toxicSmogContainer);
+            Object.DontDestroyOnLoad(toxicSmogContainer);
 
             ToxicSmogWeather toxicSmogWeatherController = toxicSmogContainer.GetComponentInChildren<ToxicSmogWeather>(true);
             GameObject effectPermanentObject = toxicSmogWeatherController.gameObject;

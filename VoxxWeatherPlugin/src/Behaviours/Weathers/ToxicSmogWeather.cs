@@ -69,10 +69,10 @@ namespace VoxxWeatherPlugin.Weathers
         private int maxAttempts;
         [SerializeField]
         [ColorUsage(true, true)]
-        internal Color toxicFumesColor = new Color(0.413f, 0.589f, 0.210f, 0f);
+        internal Color toxicFumesColor = new(0.413f, 0.589f, 0.210f, 0f);
         [SerializeField]
         [ColorUsage(true, true)]
-        internal Color toxicFogColor = new Color(0.413f, 0.589f, 0.210f); //dark lime green
+        internal Color toxicFogColor = new(0.413f, 0.589f, 0.210f); //dark lime green
 
         void Awake()
         {
@@ -113,7 +113,7 @@ namespace VoxxWeatherPlugin.Weathers
 
             if (toxicVolumetricFog == null)
             {
-                GameObject toxicFogContainer = new GameObject("ToxicFog");
+                GameObject toxicFogContainer = new("ToxicFog");
                 toxicVolumetricFog = toxicFogContainer.AddComponent<LocalVolumetricFog>();
                 toxicFogContainer.transform.SetParent(ToxicSmogWeather.Instance!.transform);
                 toxicVolumetricFog.parameters.albedo = toxicFogColor;
@@ -156,9 +156,9 @@ namespace VoxxWeatherPlugin.Weathers
             }
 
             // Use outside AI nodes as anchors
-            List<Vector3> anchorPositions = RoundManager.Instance.outsideAINodes.Select(node => node.transform.position).ToList();
+            List<Vector3> anchorPositions = [.. RoundManager.Instance.outsideAINodes.Select(node => node.transform.position)];
             // Use outside entrances as blockers
-            List<Vector3> blockersPositions = entrances.Select(entrance => entrance.transform.position).ToList();
+            List<Vector3> blockersPositions = [.. entrances.Select(entrance => entrance.transform.position)];
             ///Add ship bounds to the list of blockers
             blockersPositions.AddRange([StartOfRound.Instance.shipBounds.transform.position, Vector3.zero]);
             Debug.LogDebug($"Outdoor fumes: Anchor positions: {anchorPositions.Count}, Blockers positions: {blockersPositions.Count}");
@@ -173,9 +173,9 @@ namespace VoxxWeatherPlugin.Weathers
             // Use item spawners AND AI nodes as anchors
             // CAUSES DESYNC OF FUMES
             // anchorPositions = RoundManager.Instance.spawnedSyncedObjects.Select(obj => obj.transform.position).ToList();
-            anchorPositions = RoundManager.Instance.insideAINodes.Select(obj => obj.transform.position).ToList();
+            anchorPositions = [.. RoundManager.Instance.insideAINodes.Select(obj => obj.transform.position)];
             // Use entrances as blockers
-            blockersPositions = entrances.Select(entrance => entrance.transform.position).ToList();
+            blockersPositions = [.. entrances.Select(entrance => entrance.transform.position)];
             Debug.LogDebug($"Indoor fumes: Anchor positions: {anchorPositions.Count}, Blockers positions: {blockersPositions.Count}");
             SpawnFumes(anchorPositions, blockersPositions, factoryFumesAmount, fumesContainerInside, SeededRandom);
 
@@ -199,7 +199,7 @@ namespace VoxxWeatherPlugin.Weathers
 
             maxAttempts = amount * 3;
 
-            NavMeshHit navHit = new NavMeshHit();
+            NavMeshHit navHit = new();
 
             for (int i = 0; i < maxAttempts && spawnedPositions.Count < amount; i++)
             {

@@ -13,7 +13,6 @@ namespace VoxxWeatherPlugin.Behaviours
         private AudioSource[]? audioSources;
         public Camera? collisionCamera;
         private LocalVolumetricFog? blizzardWaveFog;
-        [SerializeField]
         internal int WaveDamage => Configuration.chillingWaveDamage.Value;
         [SerializeField]
         internal float waveForce = 40f;
@@ -30,10 +29,7 @@ namespace VoxxWeatherPlugin.Behaviours
                     return;
                 if (PlayerEffectsManager.isInColdZone)
                 {
-                    if (temperatureChangeCoroutine == null)
-                    {
-                        temperatureChangeCoroutine = StartCoroutine(TemperatureChangeCoroutine());
-                    }
+                    temperatureChangeCoroutine ??= StartCoroutine(TemperatureChangeCoroutine());
                     if (WaveDamage > 0)
                     {
                         playerController.DamagePlayer(WaveDamage, causeOfDeath: CauseOfDeath.Unknown);
@@ -101,18 +97,18 @@ namespace VoxxWeatherPlugin.Behaviours
 
         internal void SetupChillWave(Bounds levelBounds)
         {
-            blizzardWaveFog ??= gameObject.GetComponentInChildren<LocalVolumetricFog>(true);
+            blizzardWaveFog = (blizzardWaveFog != null) ? blizzardWaveFog : gameObject.GetComponentInChildren<LocalVolumetricFog>(true);
 
-            audioSourceTemplate ??= gameObject.GetComponentInChildren<AudioSource>(true);
+            audioSourceTemplate = (audioSourceTemplate != null) ? audioSourceTemplate : gameObject.GetComponentInChildren<AudioSource>(true);
             audioSourceTemplate.gameObject.SetActive(false);
 
-            collisionCamera ??= gameObject.GetComponentInChildren<Camera>(true);
+            collisionCamera = (collisionCamera != null) ? collisionCamera : gameObject.GetComponentInChildren<Camera>(true);
 
             BoxCollider waveCollider = gameObject.GetComponent<BoxCollider>();
 
             //Change the center and scale y size so the lower edge is at LevelManipulator.heightThreshold level, but current top edge is preserved
             float newHeightSpan = levelBounds.extents.y - LevelManipulator.Instance!.heightThreshold;
-            waveCollider.center = new Vector3(0f, LevelManipulator.Instance.heightThreshold + newHeightSpan / 2, waveCollider.center.z);
+            waveCollider.center = new Vector3(0f, LevelManipulator.Instance.heightThreshold + (newHeightSpan / 2), waveCollider.center.z);
             waveCollider.size = new Vector3(levelBounds.size.x, newHeightSpan, waveCollider.size.z);
 
             if (blizzardWaveFog != null)
@@ -129,7 +125,7 @@ namespace VoxxWeatherPlugin.Behaviours
             // Destroy previous audio sources
             if (audioSources != null)
             {
-                foreach (var audioSource in audioSources)
+                foreach (AudioSource audioSource in audioSources)
                 {
                     if (audioSource != null)
                     {
@@ -142,7 +138,7 @@ namespace VoxxWeatherPlugin.Behaviours
             for (int i = 0; i < audioSources.Length; i++)
             {
                 audioSources[i] = Instantiate(audioSourceTemplate, transform);
-                audioSources[i].transform.localPosition = new Vector3(0.9f * audioRange * i - waveCollider.size.x / 2f, 0, 0);
+                audioSources[i].transform.localPosition = new Vector3((0.9f * audioRange * i) - (waveCollider.size.x / 2f), 0, 0);
                 audioSources[i].maxDistance = audioRange;
                 audioSources[i].gameObject.SetActive(true);
             }

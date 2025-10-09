@@ -1,9 +1,7 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using LethalLib.Modules;
 using System.Collections.Generic;
 using System.Reflection.Emit;
-using Unity.Netcode;
 using UnityEngine;
 using VoxxWeatherPlugin.Utils;
 using VoxxWeatherPlugin.Weathers;
@@ -11,11 +9,11 @@ using VoxxWeatherPlugin.Weathers;
 namespace VoxxWeatherPlugin.Patches
 {
     [HarmonyPatch]
-    internal class HeatwavePatches
+    internal sealed class HeatwavePatches
     {
         private static float prevSprintMeter;
-        private static float severityInfluenceMultiplier = 1.25f;
-        private static float timeToCool = 17f;
+        private static readonly float severityInfluenceMultiplier = 1.25f;
+        private static readonly float timeToCool = 17f;
 
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
         [HarmonyPrefix]
@@ -69,9 +67,9 @@ namespace VoxxWeatherPlugin.Patches
             {
                 float delta = __instance.sprintMeter - prevSprintMeter;
                 if (delta < 0.0) //Stamina consumed
-                    __instance.sprintMeter = Mathf.Max(prevSprintMeter + delta * (1 + severity * severityInfluenceMultiplier), 0.0f);
+                    __instance.sprintMeter = Mathf.Max(prevSprintMeter + (delta * (1 + (severity * severityInfluenceMultiplier))), 0.0f);
                 else if (delta > 0.0) //Stamina regenerated
-                    __instance.sprintMeter = Mathf.Min(prevSprintMeter + delta / (1 + severity * severityInfluenceMultiplier), 1f);
+                    __instance.sprintMeter = Mathf.Min(prevSprintMeter + (delta / (1 + (severity * severityInfluenceMultiplier))), 1f);
             }
         }
 
@@ -90,9 +88,9 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(SoundManager), "SetAudioFilters")]
         [HarmonyTranspiler]
-        static IEnumerable<CodeInstruction> HeatstrokeAudioPatch(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        private static IEnumerable<CodeInstruction> HeatstrokeAudioPatch(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            var codes = new List<CodeInstruction>(instructions);
+            List<CodeInstruction> codes = [.. instructions];
 
             for (int i = 0; i < codes.Count - 2; i++)
             {
@@ -110,12 +108,11 @@ namespace VoxxWeatherPlugin.Patches
                     codes[i + 3] = new CodeInstruction(OpCodes.Bgt_S, jumpTarget);
 
                     // Insert the additional condition
-                    codes.InsertRange(i + 4, new[]
-                    {
+                    codes.InsertRange(i + 4, [
                         new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(PlayerEffectsManager), "HeatSeverity")),
                         new CodeInstruction(OpCodes.Ldc_R4, 0.85f),
                         new CodeInstruction(OpCodes.Ble_Un_S, originalJumpTarget)
-                    });
+                    ]);
                     // Connect the new jump target
                     codes[i + 7].labels.Add(jumpTarget);
 

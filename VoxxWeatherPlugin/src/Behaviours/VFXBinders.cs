@@ -20,13 +20,13 @@ namespace VoxxWeatherPlugin.Behaviours
         public RenderTexture? depthTexture;
         public RenderTexture? colorTexture;
         internal Camera? m_Camera;
-        public bool useCameraBuffer = false;
+        public bool useCameraBuffer;
 
         [VFXPropertyBinding("UnityEditor.VFX.CameraType"), SerializeField]
         protected ExposedProperty CameraProperty = "Camera";
 
         RTHandle? m_Texture;
-        protected RenderTexture? depthBufferRT = null;
+        protected RenderTexture? depthBufferRT;
 
         ExposedProperty? m_Position;
         ExposedProperty? m_Angles;
@@ -282,7 +282,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
         [VFXPropertyBinding("UnityEditor.VFX.AABox"), SerializeField]
         protected ExposedProperty m_Property = "AABox";
-        public BoxCollider Target = null;
+        public BoxCollider Target;
 
         private ExposedProperty? Center;
         private ExposedProperty? Size;

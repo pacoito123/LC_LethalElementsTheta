@@ -1,6 +1,5 @@
 ﻿using BepInEx;
 using HarmonyLib;
-using UnityEngine;
 using VoxxWeatherPlugin.Patches;
 using VoxxWeatherPlugin.Utils;
 using BepInEx.Logging;
@@ -175,14 +174,14 @@ namespace VoxxWeatherPlugin
             // Filter out blacklisted types
             if (blackList != null)
             {
-                derivedTypes.RemoveAll(blackList.Contains);
+                _ = derivedTypes.RemoveAll(blackList.Contains);
             }
             PatchMethodsInTypes(derivedTypes, methodToPatch, patchMethod, patchType, harmonyInstance);
         }
 
         private static List<Type> FindDerivedTypes(Type baseType, string methodName)
         {
-            var derivedTypes = new List<Type>();
+            List<Type> derivedTypes = [];
             Assembly[] assemblies;
             // Get all loaded assemblies in the current AppDomain
             if (Configuration.patchModdedEnemies.Value)
@@ -252,7 +251,7 @@ namespace VoxxWeatherPlugin
             }
 
 
-            foreach (var type in typesToPatch)
+            foreach (Type type in typesToPatch)
             {
                 try
                 {
@@ -264,18 +263,18 @@ namespace VoxxWeatherPlugin
                         continue;
                     }
 
-                    HarmonyMethod harmonyPatchMethod = new HarmonyMethod(patchMethod);
+                    HarmonyMethod harmonyPatchMethod = new(patchMethod);
 
                     switch (patchType)
                     {
                         case PatchType.Prefix:
-                            harmonyInstance.Patch(originalMethod, prefix: harmonyPatchMethod);
+                            _ = harmonyInstance.Patch(originalMethod, prefix: harmonyPatchMethod);
                             break;
                         case PatchType.Postfix:
-                            harmonyInstance.Patch(originalMethod, postfix: harmonyPatchMethod);
+                            _ = harmonyInstance.Patch(originalMethod, postfix: harmonyPatchMethod);
                             break;
                         case PatchType.Transpiler:
-                            harmonyInstance.Patch(originalMethod, transpiler: harmonyPatchMethod);
+                            _ = harmonyInstance.Patch(originalMethod, transpiler: harmonyPatchMethod);
                             break;
                         default:
                             Debug.LogError($"Invalid patch type: '{patchType}'.");

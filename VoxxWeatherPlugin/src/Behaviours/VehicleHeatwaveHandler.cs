@@ -8,15 +8,15 @@ namespace VoxxWeatherPlugin.Behaviours
     public class VehicleHeatwaveHandler : NetworkBehaviour
     {
         public VehicleController vehicleController;
-        public float normalizedTimeInHeatwave = 0f;
+        public float normalizedTimeInHeatwave;
         public float overheatThreshold = 60f;
         public float engineDieIntervalMin = 10f;
         public float engineDieIntervalMax = 20f;
         public int engineDieDamage = 1;
 
-        public bool isInHeatwave = false;
+        public bool isInHeatwave;
         private Coroutine turbSoundCoroutine; // Changed to Coroutine
-        private float engineDieTimer = 0f;
+        private float engineDieTimer;
         private System.Random seededRandom;
 
         private void Start()
@@ -61,10 +61,7 @@ namespace VoxxWeatherPlugin.Behaviours
         [Rpc(SendTo.ClientsAndHost)]
         private void PlayTurbulenceSoundClientRpc()
         {
-            if (turbSoundCoroutine == null)
-            {
-                turbSoundCoroutine = StartCoroutine(TurbulenceSoundCoroutine());
-            }
+            turbSoundCoroutine ??= StartCoroutine(TurbulenceSoundCoroutine());
         }
 
         [Rpc(SendTo.ClientsAndHost)]

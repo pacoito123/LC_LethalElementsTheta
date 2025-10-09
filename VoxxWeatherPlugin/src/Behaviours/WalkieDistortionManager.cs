@@ -1,21 +1,20 @@
 using UnityEngine;
 using VoxxWeatherPlugin.Weathers;
 using System.Collections.Generic;
-using VoxxWeatherPlugin.Utils;
 using GameNetcodeStuff;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
     public class WalkieDistortionManager : MonoBehaviour
     {
-        internal Dictionary<AudioSource, GameObject> walkieSubTargets = new Dictionary<AudioSource, GameObject>();
-        private static Dictionary<AudioSource, InterferenceDistortionFilter> cachedFilters = new Dictionary<AudioSource, InterferenceDistortionFilter>();
+        internal Dictionary<AudioSource, GameObject> walkieSubTargets = [];
+        private static Dictionary<AudioSource, InterferenceDistortionFilter> cachedFilters = [];
 
         internal AudioSource SplitWalkieTarget(GameObject target)
         {
             if (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.IsActive && SolarFlareWeather.Instance.flareData != null)
             {
-                GameObject subTarget = new GameObject("SubTarget");
+                GameObject subTarget = new("SubTarget");
                 subTarget.transform.position = target.transform.position;
                 subTarget.transform.SetParent(gameObject.transform);
                 AudioSource audioSource = subTarget.AddComponent<AudioSource>();
@@ -98,9 +97,8 @@ namespace VoxxWeatherPlugin.Behaviours
                 return null;
             }
 
-            InterferenceDistortionFilter filter;
 
-            if (!cachedFilters.TryGetValue(voiceSource, out filter))
+            if (!cachedFilters.TryGetValue(voiceSource, out InterferenceDistortionFilter filter))
             {
                 filter = voiceSource.GetComponent<InterferenceDistortionFilter>();
                 if (filter == null)

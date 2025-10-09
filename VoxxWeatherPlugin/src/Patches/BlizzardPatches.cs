@@ -3,13 +3,11 @@ using VoxxWeatherPlugin.Weathers;
 using UnityEngine;
 using GameNetcodeStuff;
 using VoxxWeatherPlugin.Utils;
-using System.Collections.Generic;
-using Dissonance;
 
 namespace VoxxWeatherPlugin.Patches
 {
     [HarmonyPatch]
-    internal class BlizzardPatches
+    internal sealed class BlizzardPatches
     {
 
         [HarmonyPatch(typeof(MouthDogAI), "DetectNoise")]
@@ -29,14 +27,8 @@ namespace VoxxWeatherPlugin.Patches
         private static bool LadderWindPatch(PlayerControllerB __instance)
         {
             // When player is too cold, players can't climb ladders during blizzards
-            if (BlizzardWeather.Instance != null && BlizzardWeather.Instance.IsActive &&
-                 __instance.isClimbingLadder &&
-                 BlizzardWeather.Instance.isLocalPlayerInWind &&
-                 PlayerEffectsManager.ColdSeverity < 0.8f)
-            {
-                return false;
-            }
-            return true;
+            return BlizzardWeather.Instance == null || !BlizzardWeather.Instance.IsActive || !__instance.isClimbingLadder ||
+                !BlizzardWeather.Instance.isLocalPlayerInWind || PlayerEffectsManager.ColdSeverity >= 0.8f;
         }
 
     }

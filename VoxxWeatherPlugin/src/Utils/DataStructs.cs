@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 
 namespace VoxxWeatherPlugin.Utils
 {
@@ -47,14 +45,14 @@ namespace VoxxWeatherPlugin.Utils
     public class SerializableDictionary<TKey, TValue> : ISerializationCallbackReceiver
     {
         [SerializeField]
-        private List<SerializableKeyValuePair<TKey, TValue>> list = new List<SerializableKeyValuePair<TKey, TValue>>();
+        private List<SerializableKeyValuePair<TKey, TValue>> list = [];
 
-        private Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
+        private Dictionary<TKey, TValue> dictionary = [];
 
         public void OnBeforeSerialize()
         {
             list.Clear();
-            foreach (var pair in dictionary)
+            foreach (KeyValuePair<TKey, TValue> pair in dictionary)
             {
                 list.Add(new SerializableKeyValuePair<TKey, TValue>(pair.Key, pair.Value));
             }
@@ -63,7 +61,7 @@ namespace VoxxWeatherPlugin.Utils
         public void OnAfterDeserialize()
         {
             dictionary.Clear();
-            foreach (var pair in list)
+            foreach (SerializableKeyValuePair<TKey, TValue> pair in list)
             {
                 if (!dictionary.ContainsKey(pair.Key))
                 {

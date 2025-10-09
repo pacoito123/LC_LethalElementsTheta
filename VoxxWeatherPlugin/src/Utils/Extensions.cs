@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using VoxxWeatherPlugin.Weathers;
 using UnityEngine.Rendering;
 using Unity.Netcode;
-using UnityEngine.UI;
 using System.Collections;
 using System.Threading.Tasks;
 using Unity.AI.Navigation;
@@ -18,12 +16,10 @@ namespace VoxxWeatherPlugin.Utils
         {
             if (min > max)
             {
-                float temp = max;
-                max = min;
-                min = temp;
+                (min, max) = (max, min);
                 Debug.LogWarning("Minimum value for random range must be less than maximum value. Switching them around!");
             }
-            return (float)random.NextDouble() * (max - min) + min;
+            return ((float)random.NextDouble() * (max - min)) + min;
         }
 
         internal static IEnumerator BakeMasks(this Texture2DArray snowMasks,
@@ -45,7 +41,7 @@ namespace VoxxWeatherPlugin.Utils
                 yield break;
             }
 
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            System.Diagnostics.Stopwatch sw = new();
 
             RenderTexture tempRT = RenderTexture.GetTemporary(bakeResolution, bakeResolution, 0, RenderTextureFormat.ARGBFloat);
             tempRT.wrapMode = TextureWrapMode.Clamp;
@@ -59,9 +55,11 @@ namespace VoxxWeatherPlugin.Utils
             blurRT2.wrapMode = TextureWrapMode.Clamp;
             blurRT2.filterMode = FilterMode.Trilinear;
 
-            Texture2D maskLayer = new Texture2D(bakeResolution, bakeResolution, TextureFormat.RGBAFloat, false);
-            maskLayer.wrapMode = TextureWrapMode.Clamp;
-            maskLayer.filterMode = FilterMode.Trilinear;
+            Texture2D maskLayer = new(bakeResolution, bakeResolution, TextureFormat.RGBAFloat, false)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Trilinear
+            };
 
             for (int textureIndex = 0; textureIndex < objectsToBake.Count; textureIndex++)
             {
@@ -79,7 +77,7 @@ namespace VoxxWeatherPlugin.Utils
             RenderTexture.ReleaseTemporary(tempRT);
             RenderTexture.ReleaseTemporary(blurRT1);
             RenderTexture.ReleaseTemporary(blurRT2);
-            GameObject.Destroy(maskLayer);
+            Object.Destroy(maskLayer);
 
             snowMasks.Apply(updateMipmaps: bakeMipmaps, makeNoLongerReadable: true); // Move to the GPU
 
@@ -125,7 +123,7 @@ namespace VoxxWeatherPlugin.Utils
             RenderTexture.active = tempRT;
             GL.Clear(true, true, Color.clear);
 
-            var matrix = objectToBake.transform.localToWorldMatrix;
+            Matrix4x4 matrix = objectToBake.transform.localToWorldMatrix;
             // UV1 is used for baking here (see shader implementation)
             if (bakeMaterial != null && bakeMaterial.SetPass(0))
                 Graphics.DrawMeshNow(mesh, matrix, submeshIndex);
@@ -160,7 +158,7 @@ namespace VoxxWeatherPlugin.Utils
         public static GameObject Duplicate(this GameObject original, bool disableShadows = true, bool removeCollider = true, bool noChildren = true)
         {
             // Temporarily unparent children
-            List<Transform> children = new List<Transform>();
+            List<Transform> children = [];
             if (noChildren)
             {
                 foreach (Transform child in original.transform)
@@ -170,7 +168,7 @@ namespace VoxxWeatherPlugin.Utils
                 }
             }
             // Instantiate but without children of original
-            GameObject duplicate = GameObject.Instantiate(original);
+            GameObject duplicate = Object.Instantiate(original);
 
             // Reparent children to the original
             if (noChildren)
@@ -184,8 +182,7 @@ namespace VoxxWeatherPlugin.Utils
             duplicate.name = original.name + "_Copy";
             // Copy transform and hierarchy
             duplicate.transform.SetParent(original.transform.parent);
-            duplicate.transform.localPosition = original.transform.localPosition;
-            duplicate.transform.localRotation = original.transform.localRotation;
+            duplicate.transform.SetLocalPositionAndRotation(original.transform.localPosition, original.transform.localRotation);
             duplicate.transform.localScale = original.transform.localScale;
 
             // Disable shadows for all renderers in the duplicate
@@ -217,7 +214,7 @@ namespace VoxxWeatherPlugin.Utils
                 Collider[] colliders = duplicate.GetComponentsInChildren<Collider>();
                 foreach (Collider collider in colliders)
                 {
-                    GameObject.Destroy(collider);
+                    Object.Destroy(collider);
                 }
             }
 
@@ -239,7 +236,7 @@ namespace VoxxWeatherPlugin.Utils
             }
 
             // Instantiate the item prefab
-            GameObject spawnedItemObject = GameObject.Instantiate(itemToSpawn.spawnPrefab, spawnPosition, Quaternion.identity);
+            GameObject spawnedItemObject = Object.Instantiate(itemToSpawn.spawnPrefab, spawnPosition, Quaternion.identity);
 
             // Get the GrabbableObject component and set its properties
             GrabbableObject grabbableObject = spawnedItemObject.GetComponent<GrabbableObject>();
@@ -327,7 +324,7 @@ namespace VoxxWeatherPlugin.Utils
             }
             RenderTexture previous = RenderTexture.active;
             RenderTexture.active = rt;
-            Texture2D tex = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
+            Texture2D tex = new(rt.width, rt.height, TextureFormat.RGBA32, false);
             tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
             tex.Apply();
             RenderTexture.active = previous;
@@ -346,7 +343,7 @@ namespace VoxxWeatherPlugin.Utils
                 return;
             }
             // Copy the texture to a new Texture2D
-            Texture2D newTex = new Texture2D(tex.width, tex.height, tex.format, tex.mipmapCount > 1);
+            Texture2D newTex = new(tex.width, tex.height, tex.format, tex.mipmapCount > 1);
             newTex.SetPixels(tex.GetPixels());
             newTex.Apply();
             byte[] bytes = ImageConversion.EncodeToPNG(tex);

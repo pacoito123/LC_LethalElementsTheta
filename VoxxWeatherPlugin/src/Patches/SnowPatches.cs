@@ -7,27 +7,26 @@ using GameNetcodeStuff;
 using VoxxWeatherPlugin.Utils;
 using VoxxWeatherPlugin.Behaviours;
 using System;
-using System.Linq;
-using WeatherRegistry;
 using UnityEngine.Rendering.HighDefinition;
-using System.Collections;
 
 
 
 namespace VoxxWeatherPlugin.Patches
 {
     [HarmonyPatch]
-    internal class SnowPatches
+    internal sealed class SnowPatches
     {
         internal static bool SnowAffectsEnemies => Configuration.snowAffectsEnemies.Value && Configuration.enableSnowTracks.Value;
         public static float TimeToWarmUp => Configuration.timeToWarmUp.Value;   // Time to warm up from cold to room temperature
         internal static float FrostbiteDamageInterval => Configuration.frostbiteDamageInterval.Value;
         internal static float FrostbiteDamage => Configuration.frostbiteDamage.Value;
         internal static float frostbiteThreshold = 0.5f; // Severity at which frostbite starts to occur, should be below 0.9
-        internal static float frostbiteTimer = 0f;
-        internal static HashSet<Type> unaffectedEnemyTypes = new HashSet<Type> {typeof(ForestGiantAI), typeof(RadMechAI), typeof(DoublewingAI),
+        internal static float frostbiteTimer;
+        internal static HashSet<Type> unaffectedEnemyTypes =
+        [
+            typeof(ForestGiantAI), typeof(RadMechAI), typeof(DoublewingAI),
                                                                                 typeof(ButlerBeesEnemyAI), typeof(DocileLocustBeesAI), typeof(RedLocustBees),
-                                                                                typeof(DressGirlAI), typeof(SandWormAI)};
+                                                                                typeof(DressGirlAI), typeof(SandWormAI)];
         public static HashSet<string>? EnemySpawnBlacklist => (LevelManipulator.Instance != null) ? LevelManipulator.Instance.enemySnowBlacklist : null;
         public static HashSet<SpawnableEnemyWithRarity> enemiesToRestore = [];
 
@@ -37,7 +36,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.VeryHigh)]
         private static IEnumerable<CodeInstruction> SnowHindranceTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            var codeMatcher = new CodeMatcher(instructions);
+            CodeMatcher codeMatcher = new(instructions);
             codeMatcher.MatchForward(true,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), "movementSpeed")),
@@ -52,7 +51,7 @@ namespace VoxxWeatherPlugin.Patches
                 return instructions;
             }
 
-            var num3Index = ((LocalBuilder)codeMatcher.Operand).LocalIndex;
+            int num3Index = ((LocalBuilder)codeMatcher.Operand).LocalIndex;
 
             codeMatcher.Advance(1);
 
@@ -70,7 +69,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> GroundSamplingTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            var codeMatcher = new CodeMatcher(instructions);
+            CodeMatcher codeMatcher = new(instructions);
             codeMatcher.MatchForward(false,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), "interactRay")),
@@ -101,7 +100,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> GroundNormalTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            var codeMatcher = new CodeMatcher(instructions);
+            CodeMatcher codeMatcher = new(instructions);
             codeMatcher.MatchForward(true,
                 new CodeMatch(OpCodes.Ldarg_0),
                 new CodeMatch(OpCodes.Ldarg_0),
@@ -131,7 +130,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.High)]
         private static IEnumerable<CodeInstruction> IceRebakeTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            var codes = new List<CodeInstruction>(instructions);
+            List<CodeInstruction> codes = [.. instructions];
 
             for (int i = 0; i < codes.Count - 4; i++)
             {
@@ -259,7 +258,7 @@ namespace VoxxWeatherPlugin.Patches
             {
                 float snowThickness = SnowThicknessManager.Instance!.GetSnowThickness(__instance);
                 // Slow down if the entity in snow (only if snow thickness is above 0.4, caps at 2.5 height)
-                float snowMovementHindranceMultiplier = 1 + 5 * Mathf.Clamp01((snowThickness - 0.4f) / 2.1f);
+                float snowMovementHindranceMultiplier = 1 + (5 * Mathf.Clamp01((snowThickness - 0.4f) / 2.1f));
 
                 __instance.agent.speed /= snowMovementHindranceMultiplier;
             }
@@ -560,7 +559,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPriority(Priority.First)]
         private static IEnumerable<CodeInstruction> LowResTransparencyTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            var codeMatcher = new CodeMatcher(instructions);
+            CodeMatcher codeMatcher = new(instructions);
 
             codeMatcher.MatchForward(true,
                 new CodeMatch(OpCodes.Ldarg_0),

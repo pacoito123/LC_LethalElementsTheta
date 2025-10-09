@@ -15,10 +15,10 @@ namespace VoxxWeatherPlugin.Behaviours
         [SerializeField] internal float maxClarityDuration = 1f;
         [SerializeField] internal float freqShiftMultiplier = 1.5f;
 
-        private float phase = 0;
-        private float freqPhase = 0;
-        private bool isClarity = false;
-        private int remainingClaritySamples = 0;
+        private float phase;
+        private float freqPhase;
+        private bool isClarity;
+        private int remainingClaritySamples;
         private int sampleRate;
         private System.Random? random;
 
@@ -39,8 +39,8 @@ namespace VoxxWeatherPlugin.Behaviours
                 // Check if we need to start a new clarity window
                 if (!isClarity && remainingClaritySamples <= 0)
                 {
-                    int averageClarityDuration = (int)(1 + (minClarityDuration + maxClarityDuration) / 2 * sampleRate * channels);
-                    float windowChance = -(1 - 1 / (distortionChance + float.Epsilon)) / averageClarityDuration;
+                    int averageClarityDuration = (int)(1 + ((minClarityDuration + maxClarityDuration) / 2 * sampleRate * channels));
+                    float windowChance = -(1 - (1 / (distortionChance + float.Epsilon))) / averageClarityDuration;
                     if (random?.NextDouble() < windowChance)
                     {
                         isClarity = true;
@@ -63,7 +63,7 @@ namespace VoxxWeatherPlugin.Behaviours
                     sample *= freqShiftMultiplier * Mathf.Cos(2 * Mathf.PI * phase);
 
                     // Modulate with noise
-                    sample *= 1 - distortionChance + (random?.NextDouble(0, distortionChance) ?? distortionChance / 2);
+                    sample *= 1 - distortionChance + (random?.NextDouble(0, distortionChance) ?? (distortionChance / 2));
 
                     // Clamp to -1 to 1
                     data[i] = Mathf.Clamp(sample, -1f, 1f);

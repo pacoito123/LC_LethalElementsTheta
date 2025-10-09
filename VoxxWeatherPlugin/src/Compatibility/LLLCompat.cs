@@ -3,18 +3,12 @@ using System.Runtime.CompilerServices;
 using LethalLevelLoader;
 using VoxxWeatherPlugin.Weathers;
 using VoxxWeatherPlugin.Behaviours;
-using System.Collections.Generic;
-using HarmonyLib;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Reflection;
 
 namespace VoxxWeatherPlugin.Compatibility
 {
     public static class LLLCompat
     {
-        public static bool IsActive { get; private set; } = false;
+        public static bool IsActive { get; private set; }
         private static readonly string snowColorTag = "voxxSnowColor";
         private static readonly string snowOverlayColorTag = "voxxSnowOverlayColor";
         private static readonly string blizzardFogColorTag = "voxxBlizzardFogColor";

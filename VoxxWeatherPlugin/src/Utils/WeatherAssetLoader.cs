@@ -6,9 +6,9 @@ namespace VoxxWeatherPlugin.Utils
 {
     public class WeatherAssetLoader
     {
-        private static readonly Dictionary<string, AssetBundle> loadedBundles = new Dictionary<string, AssetBundle>();
+        private static readonly Dictionary<string, AssetBundle> loadedBundles = [];
 
-        public static T? LoadAsset<T>(string bundleName, string assetName) where T : UnityEngine.Object
+        public static T? LoadAsset<T>(string bundleName, string assetName) where T : Object
         {
             AssetBundle? bundle = LoadBundle(bundleName);
             if (bundle == null)
@@ -45,7 +45,7 @@ namespace VoxxWeatherPlugin.Utils
 
         public static void UnloadAllBundles()
         {
-            foreach (var bundle in loadedBundles.Values)
+            foreach (AssetBundle bundle in loadedBundles.Values)
             {
                 bundle.Unload(true); // Unload assets as well
             }

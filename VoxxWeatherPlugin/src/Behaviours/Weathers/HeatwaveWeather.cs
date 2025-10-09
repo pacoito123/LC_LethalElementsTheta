@@ -55,8 +55,7 @@ namespace VoxxWeatherPlugin.Weathers
         {
             // Set the size, position and rotation of the trigger zone
             heatwaveTrigger!.size = LevelBounds.size;
-            heatwaveTrigger.transform.position = LevelBounds.center;
-            heatwaveTrigger.transform.rotation = Quaternion.identity;
+            heatwaveTrigger.transform.SetPositionAndRotation(LevelBounds.center, Quaternion.identity);
             VFXManager!.heatwaveVFXContainer!.transform.parent = transform; // Parent the container to the weather instance to make it stationary
 
             Debug.LogDebug($"Heatwave zone size: {LevelBounds.size}. Placed at {LevelBounds.center}");
@@ -116,8 +115,8 @@ namespace VoxxWeatherPlugin.Weathers
         [SerializeField]
         internal AnimationCurve heatwaveIntensityCurve = null!; // Curve for the intensity of the heatwave
         private Coroutine? cooldownCoroutine; // Coroutine for cooling down the heatwave VFX
-        private List<VisualEffect> cachedVFX = new List<VisualEffect>(); // Cached VFX for the heatwave particles
-        bool isPopulated = false;
+        private List<VisualEffect> cachedVFX = []; // Cached VFX for the heatwave particles
+        bool isPopulated;
 
         // Variables for emitter placement
         private float emitterSize;
@@ -153,7 +152,7 @@ namespace VoxxWeatherPlugin.Weathers
             int zCount = Mathf.CeilToInt(LevelBounds.size.z / emitterSize);
             Debug.LogDebug($"Placing {xCount * zCount} emitters...");
 
-            Vector3 startPoint = LevelBounds.center - LevelBounds.size * 0.5f;
+            Vector3 startPoint = LevelBounds.center - (LevelBounds.size * 0.5f);
             float raycastHeight = 500f; // Height from which to cast rays
 
             float minY = -1f;
@@ -196,9 +195,11 @@ namespace VoxxWeatherPlugin.Weathers
             float newYPos = (minY + maxY) / 2;
 
             // Adjust the level bounds to fit the heatwave zone
-            Bounds adjustedBounds = new Bounds(LevelBounds.center, LevelBounds.size);
-            adjustedBounds.size = new Vector3(LevelBounds.size.x, newHeight, LevelBounds.size.z);
-            adjustedBounds.center = new Vector3(LevelBounds.center.x, newYPos, LevelBounds.center.z);
+            Bounds adjustedBounds = new(LevelBounds.center, LevelBounds.size)
+            {
+                size = new Vector3(LevelBounds.size.x, newHeight, LevelBounds.size.z),
+                center = new Vector3(LevelBounds.center.x, newYPos, LevelBounds.center.z)
+            };
             LevelManipulator.Instance.levelBounds = adjustedBounds;
 
             isPopulated = true;
@@ -209,13 +210,11 @@ namespace VoxxWeatherPlugin.Weathers
         {
             int layerMask = (1 << LayerMask.NameToLayer("Room")) | (1 << LayerMask.NameToLayer("Default"));
 
-            RaycastHit hit;
-            if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 1000, layerMask, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 1000, layerMask, QueryTriggerInteraction.Ignore))
             {
-                NavMeshHit navHit;
-                if (NavMesh.SamplePosition(hit.point, out navHit, 3f, -1)) //places only where player can walk
+                if (NavMesh.SamplePosition(hit.point, out NavMeshHit navHit, 3f, -1)) //places only where player can walk
                 {
-                    Bounds doubledBounds = new Bounds(StartOfRound.Instance.shipBounds.bounds.center,
+                    Bounds doubledBounds = new(StartOfRound.Instance.shipBounds.bounds.center,
                                   StartOfRound.Instance.shipBounds.bounds.size * 2f);
                     if (!doubledBounds.Contains(navHit.position))
                         return (navHit.position, hit.normal);
@@ -226,10 +225,7 @@ namespace VoxxWeatherPlugin.Weathers
 
         internal void Update()
         {
-            if (cooldownCoroutine == null)
-            {
-                cooldownCoroutine = StartCoroutine(CooldownHeatwaveVFX());
-            }
+            cooldownCoroutine ??= StartCoroutine(CooldownHeatwaveVFX());
         }
 
         internal override void Reset()
@@ -277,7 +273,7 @@ namespace VoxxWeatherPlugin.Weathers
                 foreach (VisualEffect vfx in cachedVFX)
                 {
                     if (vfx != null)
-                        vfx.SetFloat(spawnRatePropertyID, Configuration.HeatwaveParticlesSpawnRate.Value * reductionFactor + 0.25f);
+                        vfx.SetFloat(spawnRatePropertyID, (Configuration.HeatwaveParticlesSpawnRate.Value * reductionFactor) + 0.25f);
                     yield return null;
                 }
             }

@@ -10,19 +10,19 @@ namespace VoxxWeatherPlugin.Behaviours
     public sealed class GlitchEffect : CustomPass
     {
         [Tooltip("Overall glitch intensity.")]
-        public ClampedFloatParameter intensity = new ClampedFloatParameter(0f, 0f, 1f);
+        public ClampedFloatParameter intensity = new(0f, 0f, 1f);
 
         [Tooltip("Strength of block glitching.")]
-        public ClampedFloatParameter blockStrength = new ClampedFloatParameter(.7f, 0f, 1f);
+        public ClampedFloatParameter blockStrength = new(.7f, 0f, 1f);
 
         [Tooltip("Horizontal drift intensity.")]
-        public ClampedFloatParameter drift = new ClampedFloatParameter(1.5f, 0f, 2f);
+        public ClampedFloatParameter drift = new(1.5f, 0f, 2f);
 
         [Tooltip("Vertical jump intensity.")]
-        public ClampedFloatParameter jump = new ClampedFloatParameter(.4f, 0f, 1f);
+        public ClampedFloatParameter jump = new(.4f, 0f, 1f);
 
         [Tooltip("Random shaking intensity.")]
-        public ClampedFloatParameter shake = new ClampedFloatParameter(.7f, 0f, 1f);
+        public ClampedFloatParameter shake = new(.7f, 0f, 1f);
 
         [Tooltip("Shader material.")]
         public Material? m_Material;
@@ -36,7 +36,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
         private Vector2 bufferDimensions;
 
-        RTHandle? tempColorBuffer = null;
+        RTHandle? tempColorBuffer;
 
         static class ShaderIDs
         {

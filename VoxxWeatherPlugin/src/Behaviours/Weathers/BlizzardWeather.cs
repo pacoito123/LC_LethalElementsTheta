@@ -19,7 +19,7 @@ namespace VoxxWeatherPlugin.Weathers
 
         [Header("Wind")]
         [SerializeField]
-        internal Vector3 windDirection = new Vector3(0, 0, 1);
+        internal Vector3 windDirection = new(0, 0, 1);
         [SerializeField]
         internal float timeSinceWindChange = 0;
         [SerializeField]
@@ -125,7 +125,7 @@ namespace VoxxWeatherPlugin.Weathers
             Vector3 directionToSource = (VFXManager.blizzardCollisionCamera.transform.position - playerHeadPos).normalized;
 
             // Calculate the point 20 meters away in the direction of the blizzard source
-            Vector3 targetPoint = playerHeadPos + directionToSource * 20f;
+            Vector3 targetPoint = playerHeadPos + (directionToSource * 20f);
 
             isLocalPlayerInWind = !Physics.Linecast(playerHeadPos, targetPoint,
                                         LayerMask.GetMask("Room", "Terrain", "Default", "NavigationSurface"),
@@ -139,8 +139,7 @@ namespace VoxxWeatherPlugin.Weathers
             // If linecast hits, visualize the hit point by doing a raycast and drawing a line
             if (!isLocalPlayerInWind)
             {
-                RaycastHit hit;
-                if (Physics.Raycast(playerHeadPos, targetPoint - playerHeadPos, out hit, 99f,
+                if (Physics.Raycast(playerHeadPos, targetPoint - playerHeadPos, out RaycastHit hit, 99f,
                                     LayerMask.GetMask("Room", "Terrain", "Default", "NavigationSurface"),
                                         QueryTriggerInteraction.Ignore))
                 {

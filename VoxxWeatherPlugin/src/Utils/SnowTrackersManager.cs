@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.VFX;
 using GameNetcodeStuff;
 using VoxxWeatherPlugin.Behaviours;
-using System.Collections;
 using VoxxWeatherPlugin.Patches;
 
 namespace VoxxWeatherPlugin.Utils
@@ -51,7 +50,7 @@ namespace VoxxWeatherPlugin.Utils
                 // Must be in SampleSceneRelay otherwise VFX causes a crash for some reason
                 snowTrackersContainer = new GameObject("SnowTrackersContainer");
                 snowTrackersContainer.SetActive(false);
-                GameObject.DontDestroyOnLoad(snowTrackersContainer);
+                Object.DontDestroyOnLoad(snowTrackersContainer);
             }
 
             VisualEffectAsset? trackerVariantVFX = trackerVariant switch
@@ -176,6 +175,8 @@ namespace VoxxWeatherPlugin.Utils
                 case VehicleController:
                     RegisterFootprintTracker(obj, TrackerType.Footprints, particleSize, lifetimeMultiplier, footprintStrength, positionOffset);
                     break;
+                default:
+                    break;
             }
 
             if (obj is Shovel)
@@ -226,12 +227,12 @@ namespace VoxxWeatherPlugin.Utils
             if (snowTrackersContainer != null)
                 snowTrackersContainer.SetActive(enable);
 
-            foreach ((var obj, var trackerData) in trackersDict)
+            foreach ((MonoBehaviour? obj, SnowTrackerData? trackerData) in trackersDict)
             {
                 if (obj == null) // Check if the object has been destroyed
                 {
                     if (trackerData.trackerVFX != null)
-                        GameObject.Destroy(trackerData.trackerVFX.gameObject);
+                        Object.Destroy(trackerData.trackerVFX.gameObject);
                     keysToRemove.Add(obj);
                 }
                 else if (trackerData.trackerVFX != null)
@@ -242,7 +243,7 @@ namespace VoxxWeatherPlugin.Utils
 
             Debug.LogDebug($"Removing {keysToRemove.Count} previously destroyed entries from snow footprint trackers");
 
-            foreach (var key in keysToRemove)
+            foreach (MonoBehaviour key in keysToRemove)
             {
                 trackersDict.Remove(key);
             }

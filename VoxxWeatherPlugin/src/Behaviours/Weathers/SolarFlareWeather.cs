@@ -10,6 +10,7 @@ using UnityEngine.Rendering;
 using System.Collections.Generic;
 using TerraMesh;
 using VoxxWeatherPlugin.Compatibility;
+using Unity.Netcode;
 
 namespace VoxxWeatherPlugin.Weathers
 {
@@ -62,8 +63,8 @@ namespace VoxxWeatherPlugin.Weathers
 
         [Header("Electric Malfunction Stuff")]
         private Coroutine? electricMalfunctionCoroutine = null;
-        private Coroutine? doorMalfunctionCoroutine = null;
-        private Coroutine? lightFlickerCoroutine = null;
+        private Coroutine? doorMalfunctionCoroutine;
+        private Coroutine? lightFlickerCoroutine;
         [SerializeField]
         internal AudioClip? staticElectricitySound;
         internal Dictionary<MonoBehaviour, ElectricMalfunctionData> electricMalfunctionData = [];
@@ -131,15 +132,15 @@ namespace VoxxWeatherPlugin.Weathers
             RefreshGlitchCameras();
 
             TerminalAccessibleObject[] terminalObjects = FindObjectsOfType<TerminalAccessibleObject>();
-            bigDoors = terminalObjects.Where(obj => obj.isBigDoor).ToArray();
+            bigDoors = [.. terminalObjects.Where(obj => obj.isBigDoor)];
 
-            var radMechNests = FindObjectsOfType<EnemyAINestSpawnObject>().Where(obj => obj.enemyType.enemyName == "RadMech").ToArray();
+            EnemyAINestSpawnObject[] radMechNests = [.. FindObjectsOfType<EnemyAINestSpawnObject>().Where(obj => obj.enemyType.enemyName == "RadMech")];
             foreach (EnemyAINestSpawnObject radMechNest in radMechNests)
             {
                 CreateStaticParticle(radMechNest);
             }
 
-            var mines = FindObjectsOfType<Landmine>();
+            Landmine[] mines = FindObjectsOfType<Landmine>();
             foreach (Landmine mine in mines)
             {
                 CreateStaticParticle(mine);
@@ -242,7 +243,7 @@ namespace VoxxWeatherPlugin.Weathers
 
         private IEnumerator ElectricalMalfunctionCoroutine()
         {
-            foreach (var malfunctionDataEntry in electricMalfunctionData)
+            foreach (KeyValuePair<MonoBehaviour, ElectricMalfunctionData> malfunctionDataEntry in electricMalfunctionData)
             {
                 MonoBehaviour malfunctionObject = malfunctionDataEntry.Key;
                 ElectricMalfunctionData malfunctionData = malfunctionDataEntry.Value;
@@ -290,6 +291,8 @@ namespace VoxxWeatherPlugin.Weathers
                         {
                             WeatherEventSynchronizer.Instance.StartMalfunction(malfunctionData);
                         }
+                        break;
+                    default:
                         break;
                 }
 
@@ -359,7 +362,7 @@ namespace VoxxWeatherPlugin.Weathers
                     radMechType.nestSpawnPrefab = null; // This is to prevent the spawned rad mech to teleport to a random nest
                     if (GameNetworkManager.Instance.isHostingGame)
                     {
-                        var radMechNetworkReference = RoundManager.Instance.SpawnEnemyGameObject(nestPosition, nestAngle, -1, radMechType);
+                        NetworkObjectReference radMechNetworkReference = RoundManager.Instance.SpawnEnemyGameObject(nestPosition, nestAngle, -1, radMechType);
                         RoundManager.Instance.currentOutsideEnemyPower += radMechType.PowerLevel;
                     }
                     yield return new WaitForSeconds(2f); // Wait a bit to sync up
@@ -423,9 +426,7 @@ namespace VoxxWeatherPlugin.Weathers
                 return;
             }
 
-            Camera? radarCamera = radarCameraObject.GetComponent<Camera>();
-
-            if (radarCamera != null)
+            if (radarCameraObject.TryGetComponent(out Camera radarCamera))
             {
                 GlitchCamera(radarCamera);
                 //radarCameraObject.AddComponent<CameraDebugSettings>();
@@ -477,7 +478,7 @@ namespace VoxxWeatherPlugin.Weathers
             glitchVolume.targetCamera = camera;
 
             // Create a new GlitchEffect pass.
-            GlitchEffect glitchPass = new GlitchEffect { name = "Glitch Pass", m_Material = glitchMaterial };
+            GlitchEffect glitchPass = new() { name = "Glitch Pass", m_Material = glitchMaterial };
 
             // Add the pass to the volume and disable it.
             glitchVolume.customPasses.Add(glitchPass);
@@ -514,12 +515,12 @@ namespace VoxxWeatherPlugin.Weathers
 
             staticParticles.Stop();
             staticParticles.transform.localPosition = Vector3.zero;
-            var mainModule = staticParticles.main;
+            ParticleSystem.MainModule mainModule = staticParticles.main;
             mainModule.playOnAwake = false;
             mainModule.loop = true;
             mainModule.startSize = new ParticleSystem.MinMaxCurve(0.5f, 2f);
             mainModule.startColor = new ParticleSystem.MinMaxGradient(Color.white * Mathf.Pow(2, 1.5f));
-            var noiseModule = staticParticles.noise;
+            ParticleSystem.NoiseModule noiseModule = staticParticles.noise;
             noiseModule.enabled = false;
 
             audioSource.clip = staticElectricitySound;
@@ -537,11 +538,13 @@ namespace VoxxWeatherPlugin.Weathers
                 Destroy(child.gameObject);
             }
 
-            var shapeModule = staticParticles.shape;
-            ElectricMalfunctionData malfunctionData = new ElectricMalfunctionData();
-            malfunctionData.StaticParticles = staticParticles;
-            malfunctionData.ElectricAudio = audioSource;
-            malfunctionData.malfunctionObject = inputClass;
+            ParticleSystem.ShapeModule shapeModule = staticParticles.shape;
+            ElectricMalfunctionData malfunctionData = new()
+            {
+                StaticParticles = staticParticles,
+                ElectricAudio = audioSource,
+                malfunctionObject = inputClass
+            };
             switch (inputClass)
             {
                 case RadMechAI radMechAI:
@@ -559,7 +562,7 @@ namespace VoxxWeatherPlugin.Weathers
                     {
                         staticParticles.transform.localScale = Vector3.one * 0.4f;
                         MeshFilter meshFilter = meshRenderer.GetComponent<MeshFilter>();
-                        turretMeshReadable ??= meshFilter.sharedMesh.MakeReadableCopy();
+                        turretMeshReadable = (turretMeshReadable != null) ? turretMeshReadable : meshFilter.sharedMesh.MakeReadableCopy();
                         meshFilter.sharedMesh = turretMeshReadable;
                         shapeModule.shapeType = ParticleSystemShapeType.MeshRenderer;
                         shapeModule.meshRenderer = meshRenderer;
@@ -652,7 +655,7 @@ namespace VoxxWeatherPlugin.Weathers
                 s = Mathf.Clamp01(s + 0.65f); // Increase saturation, clamp to 0-1 range
                 baseCoronaColor = Color.HSVToRGB(h, s, v);
                 float factor = Mathf.Pow(2, 1.3f); //HDR color correction
-                Color coronaColor1 = new Color(baseCoronaColor.r * factor, baseCoronaColor.g * factor, baseCoronaColor.b * factor, 1f);
+                Color coronaColor1 = new(baseCoronaColor.r * factor, baseCoronaColor.g * factor, baseCoronaColor.b * factor, 1f);
                 Color coronaColor2 = baseCoronaColor;
                 coronaColor2.r += .2f; // Increase red channel
                 factor = Mathf.Pow(2, 2.7f);
@@ -724,8 +727,7 @@ namespace VoxxWeatherPlugin.Weathers
                 else
                 {
                     flareObjectCopy = Instantiate(flareObject);
-                    flareObjectCopy.transform.position = sunTextureObject.transform.position;
-                    flareObjectCopy.transform.rotation = sunTextureObject.transform.rotation;
+                    flareObjectCopy.transform.SetPositionAndRotation(sunTextureObject.transform.position, sunTextureObject.transform.rotation);
                     flareObjectCopy.transform.localScale = sunTextureObject.transform.lossyScale * ((SolarFlareWeather.Instance != null
                         && SolarFlareWeather.Instance.flareData != null) ? SolarFlareWeather.Instance.flareData.FlareSize : 1.1f);
                     flareObjectCopy.transform.parent = sunTextureObject.transform; // to sync with the sun
@@ -798,7 +800,7 @@ namespace VoxxWeatherPlugin.Weathers
 
                 Vector3 sunDirection = -directSun.transform.forward;
                 float farClipPlane = GameNetworkManager.Instance.localPlayerController.gameplayCamera.farClipPlane * 0.99f;
-                Vector3 flarePosition = directSun.transform.position + sunDirection * farClipPlane;
+                Vector3 flarePosition = directSun.transform.position + (sunDirection * farClipPlane);
 
                 float sunAngularSizeRadians = (lightData.angularDiameter + lightData.flareSize) * Mathf.Deg2Rad;
                 float directSunRadius = Mathf.Tan(sunAngularSizeRadians / 2) * farClipPlane;
@@ -808,8 +810,7 @@ namespace VoxxWeatherPlugin.Weathers
                 rescaleParameter *= (SolarFlareWeather.Instance != null && SolarFlareWeather.Instance.flareData != null)
                     ? SolarFlareWeather.Instance.flareData.FlareSize : 1.1f;
 
-                flareTransform.position = flarePosition;
-                flareTransform.rotation = directSun.transform.rotation;
+                flareTransform.SetPositionAndRotation(flarePosition, directSun.transform.rotation);
                 flareTransform.SetParent(directSun.transform);
                 flareTransform.localRotation = Quaternion.Euler(90f, 0, 0);
                 flareTransform.localScale = new Vector3(1, 1, 1);
@@ -857,7 +858,7 @@ namespace VoxxWeatherPlugin.Weathers
             if (temperature <= 66)
             {
                 green = temperature;
-                green = 99.4708025861f * Mathf.Log(green) - 161.1195681661f;
+                green = (99.4708025861f * Mathf.Log(green)) - 161.1195681661f;
                 if (green < 0) green = 0;
                 if (green > 255) green = 255;
             }
@@ -883,7 +884,7 @@ namespace VoxxWeatherPlugin.Weathers
                 else
                 {
                     blue = temperature - 10;
-                    blue = 138.5177312231f * Mathf.Log(blue) - 305.0447927307f;
+                    blue = (138.5177312231f * Mathf.Log(blue)) - 305.0447927307f;
                     if (blue < 0) blue = 0;
                     if (blue > 255) blue = 255;
                 }
@@ -909,7 +910,7 @@ namespace VoxxWeatherPlugin.Weathers
             );
 
             Graphics.Blit(texture, rt);
-            Texture2D readableTexture = new Texture2D(texture.width, texture.height);
+            Texture2D readableTexture = new(texture.width, texture.height);
             RenderTexture previous = RenderTexture.active;
             RenderTexture.active = rt;
             readableTexture.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);

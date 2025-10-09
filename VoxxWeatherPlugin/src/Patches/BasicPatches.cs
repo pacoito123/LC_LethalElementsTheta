@@ -8,7 +8,7 @@ using WeatherRegistry;
 namespace VoxxWeatherPlugin.Patches
 {
     [HarmonyPatch]
-    public class BasicPatches
+    internal sealed class BasicPatches
     {
         [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.SceneManager_OnLoadComplete1))]
         [HarmonyPostfix]
@@ -22,21 +22,21 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))]
         [HarmonyPostfix]
-        public static void RegisterSynchronizerPatch()
+        private static void RegisterSynchronizerPatch()
         {
-            WeatherTypeLoader.LoadWeatherSynchronizer();
+            _ = WeatherTypeLoader.LoadWeatherSynchronizer();
         }
 
         [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]
         [HarmonyPostfix]
-        static void SpawnNetworkHandler()
+        private static void SpawnNetworkHandler()
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 if (WeatherTypeLoader.weatherSynchronizerPrefab != null)
                 {
                     GameObject networkHandlerHost = Object.Instantiate(WeatherTypeLoader.weatherSynchronizerPrefab, Vector3.zero, Quaternion.identity);
-                    GameObject.DontDestroyOnLoad(networkHandlerHost);
+                    Object.DontDestroyOnLoad(networkHandlerHost);
                     networkHandlerHost.hideFlags = HideFlags.HideAndDontSave;
                     networkHandlerHost.GetComponent<NetworkObject>().Spawn();
                 }

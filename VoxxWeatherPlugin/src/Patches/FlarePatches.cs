@@ -11,10 +11,10 @@ using GameNetcodeStuff;
 namespace VoxxWeatherPlugin.Patches
 {
     [HarmonyPatch]
-    internal class FlarePatches
+    internal sealed class FlarePatches
     {
-        internal static System.Random random = new System.Random();
-        internal static System.Random seededRandom = new System.Random(42);
+        internal static System.Random random = new();
+        internal static System.Random seededRandom = new(42);
         internal static Transform? originalTeleporterPosition;
         internal static float batteryDrainMultiplier => Mathf.Clamp(Configuration.BatteryDrainMultiplier.Value, 0, 99);
         internal static bool drainBatteryInFacility => Configuration.DrainBatteryInFacility.Value;
@@ -34,7 +34,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         static IEnumerable<CodeInstruction> VoiceDistorterPatch(IEnumerable<CodeInstruction> instructions)
         {
-            var codeMatcher = new CodeMatcher(instructions);
+            CodeMatcher codeMatcher = new(instructions);
             codeMatcher.MatchForward(false,
                 new CodeMatch(OpCodes.Stloc_S),
                 new CodeMatch(OpCodes.Ldloc_1),
@@ -99,7 +99,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         static IEnumerable<CodeInstruction> TeleporterDistortionTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            var matcher = new CodeMatcher(instructions)
+            CodeMatcher matcher = new CodeMatcher(instructions)
                 .MatchForward(false,
                     new CodeMatch(OpCodes.Ldarg_0),
                     new CodeMatch(OpCodes.Ldfld),
@@ -148,8 +148,7 @@ namespace VoxxWeatherPlugin.Patches
                 {
                     int randomIndex = seededRandom.Next(0, outsideAINodes.Length);
                     Transform distortedPosition = outsideAINodes[randomIndex].transform;
-                    NavMeshHit hit;
-                    if (NavMesh.SamplePosition(distortedPosition.position, out hit, 10f, NavMesh.AllAreas))
+                    if (NavMesh.SamplePosition(distortedPosition.position, out NavMeshHit hit, 10f, NavMesh.AllAreas))
                     {
                         distortedPosition.position = hit.position;
                         teleporter.teleporterPosition = distortedPosition;
@@ -257,7 +256,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyTranspiler]
         static IEnumerable<CodeInstruction> RadioDistorterPatch(IEnumerable<CodeInstruction> instructions)
         {
-            var codeMatcher = new CodeMatcher(instructions);
+            CodeMatcher codeMatcher = new(instructions);
 
             // Replace audio source creation logic
             codeMatcher = codeMatcher.MatchForward(true,
@@ -277,13 +276,13 @@ namespace VoxxWeatherPlugin.Patches
             // Replace audio source disposal logic
             codeMatcher = codeMatcher.MatchForward(true,
                 new CodeMatch(OpCodes.Ldloc_1),
-                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(UnityEngine.Object), "Destroy", new[] { typeof(UnityEngine.Object) }))
+                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Object), "Destroy", [typeof(Object)]))
             )
             .Repeat(matcher =>
             {
                 matcher.SetInstruction(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(FlareOptionalWalkiePatches),
                                                                                             nameof(DisposeWalkieTarget),
-                     new[] { typeof(AudioSource), typeof(GameObject) })));
+                     [typeof(AudioSource), typeof(GameObject)])));
                 matcher.Insert(new CodeInstruction(OpCodes.Callvirt, AccessTools.Method(typeof(Component), "get_gameObject")));
                 matcher.Insert(new CodeInstruction(OpCodes.Ldarg_0));
                 ;

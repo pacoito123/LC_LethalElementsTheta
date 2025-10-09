@@ -2,9 +2,9 @@ using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.Rendering;
 using System;
-using VoxxWeatherPlugin.Weathers;
 using VoxxWeatherPlugin.Utils;
 using System.Collections.Generic;
+using UnityEngine.Rendering.RendererUtils;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
@@ -66,23 +66,23 @@ namespace VoxxWeatherPlugin.Behaviours
         public SortingCriteria sortingCriteria = SortingCriteria.CommonOpaque;
 
         // Override material
-        public Material? snowOverlayMaterial = null;
-        public List<Material> snowVertexMaterials = new List<Material>();
+        public Material? snowOverlayMaterial;
+        public List<Material> snowVertexMaterials = [];
         [SerializeField]
         internal int overrideMaterialPassIndex = 0;
         public string overrideMaterialPassName = "Forward";
 
         // Override the depth state of the objects.
-        public bool overrideDepthState = false;
+        public bool overrideDepthState;
         public CompareFunction depthCompareFunction = CompareFunction.LessEqual;
         public bool depthWrite = true;
-        public bool forceClusteredLighting = false;
+        public bool forceClusteredLighting;
 
         /// Override the stencil state of the objects.
-        internal bool overrideStencil = false;
+        internal bool overrideStencil;
         internal int stencilReferenceValue = (int)UserStencilUsage.UserBit0;
-        internal int stencilWriteMask = (int)(UserStencilUsage.AllUserBits);
-        internal int stencilReadMask = (int)(UserStencilUsage.AllUserBits);
+        internal int stencilWriteMask = (int)UserStencilUsage.AllUserBits;
+        internal int stencilReadMask = (int)UserStencilUsage.AllUserBits;
         internal CompareFunction stencilCompareFunction = CompareFunction.Always;
         internal StencilOp stencilPassOperation;
         internal StencilOp stencilFailOperation;
@@ -96,36 +96,32 @@ namespace VoxxWeatherPlugin.Behaviours
         protected override void Setup(ScriptableRenderContext renderContext, CommandBuffer cmd)
         {
             // In case there was a pass index assigned, retrieve the name of this pass
-            if (String.IsNullOrEmpty(overrideMaterialPassName) && snowOverlayMaterial != null)
+            if (string.IsNullOrEmpty(overrideMaterialPassName) && snowOverlayMaterial != null)
                 overrideMaterialPassName = snowOverlayMaterial.GetPassName(overrideMaterialPassIndex);
 
-            forwardShaderTags = new ShaderTagId[]
-            {
+            forwardShaderTags =
+            [
                     HDShaderPassNames.s_ForwardName,            // HD Lit shader
                     HDShaderPassNames.s_ForwardOnlyName,        // HD Unlit shader
                     HDShaderPassNames.s_SRPDefaultUnlitName,    // Cross SRP Unlit shader
                     HDShaderPassNames.s_EmptyName,              // Add an empty slot for the override material
-            };
+            ];
 
-            depthShaderTags = new ShaderTagId[]
-            {
+            depthShaderTags = [
                     HDShaderPassNames.s_DepthForwardOnlyName,
                     HDShaderPassNames.s_DepthOnlyName,
                     HDShaderPassNames.s_EmptyName,              // Add an empty slot for the override material
-            };
+            ];
         }
 
         ShaderTagId[]? GetShaderTagIds()
         {
-            if (shaderPass == ShaderPass.DepthPrepass)
-                return depthShaderTags;
-            else
-                return forwardShaderTags;
+            return (shaderPass == ShaderPass.DepthPrepass) ? depthShaderTags : forwardShaderTags;
         }
 
         protected override void Execute(CustomPassContext ctx)
         {
-            var shaderPasses = GetShaderTagIds();
+            ShaderTagId[]? shaderPasses = GetShaderTagIds();
             if (snowOverlayMaterial == null)
             {
                 Debug.LogWarning("Attempt to call with an empty override material. Skipping the call to avoid errors");
@@ -155,15 +151,15 @@ namespace VoxxWeatherPlugin.Behaviours
                 return;
             }
 
-            shaderPasses[shaderPasses.Length - 1] = new ShaderTagId(overrideMaterialPassName);
+            shaderPasses[^1] = new ShaderTagId(overrideMaterialPassName);
 
             RefreshAllSnowMaterials();
 
-            var mask = overrideDepthState ? RenderStateMask.Depth : 0;
+            RenderStateMask mask = overrideDepthState ? RenderStateMask.Depth : 0;
             mask |= overrideDepthState && !depthWrite ? RenderStateMask.Stencil : 0;
             if (overrideStencil)
                 mask |= RenderStateMask.Stencil;
-            var stateBlock = new RenderStateBlock(mask)
+            RenderStateBlock stateBlock = new(mask)
             {
                 depthState = new DepthState(depthWrite, depthCompareFunction),
                 stencilState = new StencilState(overrideStencil, (byte)stencilReadMask, (byte)stencilWriteMask, stencilCompareFunction, stencilPassOperation, stencilFailOperation, stencilDepthFailOperation),
@@ -172,7 +168,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
             PerObjectData renderConfig = HDUtils.GetRendererConfiguration(ctx.hdCamera.frameSettings.IsEnabled(FrameSettingsField.ProbeVolume), ctx.hdCamera.frameSettings.IsEnabled(FrameSettingsField.Shadowmask));
 
-            var result = new UnityEngine.Rendering.RendererUtils.RendererListDesc(shaderPasses, ctx.cullingResults, ctx.hdCamera.camera)
+            RendererListDesc result = new(shaderPasses, ctx.cullingResults, ctx.hdCamera.camera)
             {
                 rendererConfiguration = renderConfig,
                 renderQueueRange = GetRenderQueueRange(renderQueueType),
@@ -185,9 +181,9 @@ namespace VoxxWeatherPlugin.Behaviours
                 renderingLayerMask = (uint)renderingLayers
             };
 
-            var renderCtx = ctx.renderContext;
-            var rendererList = renderCtx.CreateRendererList(result);
-            bool opaque = renderQueueType == RenderQueueType.AllOpaque || renderQueueType == RenderQueueType.OpaqueAlphaTest || renderQueueType == RenderQueueType.OpaqueNoAlphaTest;
+            ScriptableRenderContext renderCtx = ctx.renderContext;
+            RendererList rendererList = renderCtx.CreateRendererList(result);
+            bool opaque = renderQueueType is RenderQueueType.AllOpaque or RenderQueueType.OpaqueAlphaTest or RenderQueueType.OpaqueNoAlphaTest;
 
 
             RenderForwardRendererList(ctx.hdCamera.frameSettings, rendererList, opaque, ctx.renderContext, ctx.cmd);
@@ -236,7 +232,7 @@ namespace VoxxWeatherPlugin.Behaviours
             {
                 return;
             }
-            foreach (var material in materials!)
+            foreach (Material material in materials!)
             {
                 RefreshSnowMaterial(material);
             }
