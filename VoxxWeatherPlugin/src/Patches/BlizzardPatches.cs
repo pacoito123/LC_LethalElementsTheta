@@ -9,7 +9,7 @@ namespace VoxxWeatherPlugin.Patches
     [HarmonyPatch]
     internal sealed class BlizzardPatches
     {
-        [HarmonyPatch(typeof(MouthDogAI), "DetectNoise")]
+        [HarmonyPatch(typeof(MouthDogAI), nameof(MouthDogAI.DetectNoise))]
         [HarmonyPrefix]
         private static void DogSoundMufflingPatch(MouthDogAI __instance, ref float noiseLoudness)
         {
@@ -21,7 +21,7 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        [HarmonyPatch(typeof(PlayerControllerB), "CancelSpecialTriggerAnimations")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.CancelSpecialTriggerAnimations))]
         [HarmonyPrefix]
         private static bool LadderWindPatch(PlayerControllerB __instance)
         {

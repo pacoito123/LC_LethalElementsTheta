@@ -15,7 +15,7 @@ namespace VoxxWeatherPlugin.Patches
         private static readonly float severityInfluenceMultiplier = 1.25f;
         private static readonly float timeToCool = 17f;
 
-        [HarmonyPatch(typeof(PlayerControllerB), "Update")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.Update))]
         [HarmonyPrefix]
         [HarmonyPriority(Priority.High)]
         private static void HeatStrokePatchPrefix(PlayerControllerB __instance)
@@ -26,7 +26,7 @@ namespace VoxxWeatherPlugin.Patches
             prevSprintMeter = __instance.sprintMeter;
         }
 
-        [HarmonyPatch(typeof(PlayerControllerB), "LateUpdate")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.LateUpdate))]
         [HarmonyPostfix]
         [HarmonyPriority(Priority.Low)]
         private static void HeatStrokePatchLatePostfix(PlayerControllerB __instance)
@@ -86,7 +86,7 @@ namespace VoxxWeatherPlugin.Patches
                      (playerController.currentAudioTrigger != null && playerController.currentAudioTrigger.insideLighting);
         }
 
-        [HarmonyPatch(typeof(SoundManager), "SetAudioFilters")]
+        [HarmonyPatch(typeof(SoundManager), nameof(SoundManager.SetAudioFilters))]
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> HeatstrokeAudioPatch(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {

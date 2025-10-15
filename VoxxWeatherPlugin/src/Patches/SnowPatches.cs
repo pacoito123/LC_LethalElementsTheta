@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection.Emit;
+using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
@@ -29,7 +30,7 @@ namespace VoxxWeatherPlugin.Patches
         public static HashSet<string>? EnemySpawnBlacklist => (LevelManipulator.Instance != null) ? LevelManipulator.Instance.enemySnowBlacklist : null;
         public static HashSet<SpawnableEnemyWithRarity> enemiesToRestore = [];
 
-        [HarmonyPatch(typeof(PlayerControllerB), "Update")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.Update))]
         [HarmonyTranspiler]
         [HarmonyPriority(Priority.VeryHigh)]
         private static IEnumerable<CodeInstruction> SnowHindranceTranspiler(IEnumerable<CodeInstruction> instructions)
@@ -60,18 +61,18 @@ namespace VoxxWeatherPlugin.Patches
             return codeMatcher.InstructionEnumeration();
         }
 
-        [HarmonyPatch(typeof(PlayerControllerB), "GetCurrentMaterialStandingOn")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.GetCurrentMaterialStandingOn))]
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> GroundSamplingTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             CodeMatcher codeMatcher = new CodeMatcher(instructions).MatchForward(false,
                 new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), "interactRay")),
+                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.interactRay))),
                 new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(PlayerControllerB), "hit")),
+                new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.hit))),
                 new CodeMatch(OpCodes.Ldc_R4), // 6f
-                new CodeMatch(OpCodes.Call, AccessTools.PropertyGetter(typeof(StartOfRound), "Instance")),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StartOfRound), "walkableSurfacesMask"))
+                new CodeMatch(OpCodes.Call, AccessTools.PropertyGetter(typeof(StartOfRound), nameof(StartOfRound.Instance))),
+                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StartOfRound), nameof(StartOfRound.walkableSurfacesMask)))
             );
 
             if (codeMatcher.IsInvalid)
@@ -90,7 +91,7 @@ namespace VoxxWeatherPlugin.Patches
             return codeMatcher.InstructionEnumeration();
         }
 
-        [HarmonyPatch(typeof(PlayerControllerB), "CalculateGroundNormal")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.CalculateGroundNormal))]
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> GroundNormalTranspiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -117,7 +118,7 @@ namespace VoxxWeatherPlugin.Patches
             return codeMatcher.InstructionEnumeration();
         }
 
-        [HarmonyPatch(typeof(RoundManager), "SpawnOutsideHazards")]
+        [HarmonyPatch(typeof(RoundManager), nameof(RoundManager.SpawnOutsideHazards))]
         [HarmonyTranspiler]
         [HarmonyPriority(Priority.High)]
         private static IEnumerable<CodeInstruction> IceRebakeTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
@@ -153,7 +154,7 @@ namespace VoxxWeatherPlugin.Patches
             return codeMatcher.InstructionEnumeration();
         }
 
-        [HarmonyPatch(typeof(PlayerControllerB), "LateUpdate")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.LateUpdate))]
         [HarmonyPrefix]
         [HarmonyPriority(Priority.Low)]
         private static void FrostbiteLatePostfix(PlayerControllerB __instance)
@@ -201,7 +202,7 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        [HarmonyPatch(typeof(PlayerControllerB), "OnControllerColliderHit")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.OnControllerColliderHit))]
         [HarmonyPostfix]
         private static void PlayerFeetPositionPatch(ControllerColliderHit hit)
         {
@@ -211,7 +212,7 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        [HarmonyPatch(typeof(EnemyAI), "DoAIInterval")]
+        [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.DoAIInterval))]
         [HarmonyPrefix]
         private static void EnemyGroundSamplerPatch(EnemyAI __instance)
         {
@@ -249,14 +250,14 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        [HarmonyPatch(typeof(TimeOfDay), "Start")]
+        [HarmonyPatch(typeof(TimeOfDay), nameof(TimeOfDay.Start))]
         [HarmonyPostfix]
         private static void SnowCleanupPatch()
         {
             SnowTrackersManager.CleanupTrackers();
         }
 
-        [HarmonyPatch(typeof(PlayerControllerB), "Start")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.Start))]
         [HarmonyPrefix]
         private static void PlayerSnowTracksPatch(PlayerControllerB __instance)
         {
@@ -264,7 +265,7 @@ namespace VoxxWeatherPlugin.Patches
         }
 
         //TODO MaskedPlayerEnemy doesn't work for some reason
-        [HarmonyPatch(typeof(EnemyAI), "Start")]
+        [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.Start))]
         [HarmonyPrefix]
         private static void EnemySnowTracksPatch(EnemyAI __instance)
         {
@@ -288,21 +289,21 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        [HarmonyPatch(typeof(GrabbableObject), "Start")]
+        [HarmonyPatch(typeof(GrabbableObject), nameof(GrabbableObject.Start))]
         [HarmonyPrefix]
         private static void GrabbableSnowTracksPatch(GrabbableObject __instance)
         {
             SnowTrackersManager.AddFootprintTracker(__instance, 2f, 0.167f, 0.7f);
         }
 
-        [HarmonyPatch(typeof(VehicleController), "Start")]
+        [HarmonyPatch(typeof(VehicleController), nameof(VehicleController.Start))]
         [HarmonyPrefix]
         private static void VehicleSnowTracksPatch(VehicleController __instance)
         {
             SnowTrackersManager.AddFootprintTracker(__instance, 6f, 0.75f, 1f, new Vector3(0, 0, 1.5f));
         }
 
-        [HarmonyPatch(typeof(PlayerControllerB), "Update")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.Update))]
         [HarmonyPrefix]
         private static void PlayerSnowTracksUpdatePatch(PlayerControllerB __instance)
         {
@@ -320,7 +321,7 @@ namespace VoxxWeatherPlugin.Patches
 
         }
 
-        [HarmonyPatch(typeof(EnemyAI), "Update")]
+        [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.Update))]
         [HarmonyPrefix]
         private static void EnemySnowTracksUpdatePatch(EnemyAI __instance)
         {
@@ -339,7 +340,7 @@ namespace VoxxWeatherPlugin.Patches
             SnowTrackersManager.UpdateFootprintTracker(__instance, enableTracker);
         }
 
-        [HarmonyPatch(typeof(VehicleController), "Update")]
+        [HarmonyPatch(typeof(VehicleController), nameof(VehicleController.Update))]
         [HarmonyPrefix]
         private static void VehicleSnowTracksUpdatePatch(VehicleController __instance)
         {
@@ -356,21 +357,21 @@ namespace VoxxWeatherPlugin.Patches
         }
 
         // Not required cause players are never destroyed as an object
-        // [HarmonyPatch(typeof(PlayerControllerB), "KillPlayer")]
+        // [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.KillPlayer))]
         // [HarmonyPostfix]
         // private static void PlayerSnowTracksDeathPatch(PlayerControllerB __instance)
         // {
         //     SnowTrackersManager.TempSaveTracker(__instance, TrackerType.Footprints);
         // }
 
-        [HarmonyPatch(typeof(EnemyAI), "OnDestroy")]
+        [HarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.OnDestroy))]
         [HarmonyPostfix]
         private static void EnemySnowTracksDestroyPatch(EnemyAI __instance)
         {
             SnowTrackersManager.TempSaveTracker(__instance, TrackerType.FootprintsLowCapacity);
         }
 
-        [HarmonyPatch(typeof(VehicleController), "DestroyCar")]
+        [HarmonyPatch(typeof(VehicleController), nameof(VehicleController.DestroyCar))]
         [HarmonyPostfix]
         private static void VehicleSnowTracksDestroyPatch(VehicleController __instance)
         {
@@ -385,14 +386,14 @@ namespace VoxxWeatherPlugin.Patches
             SnowTrackersManager.PlayFootprintTracker(__instance, TrackerType.Item, true);
         }
 
-        [HarmonyPatch(typeof(GrabbableObject), "PlayDropSFX")]
+        [HarmonyPatch(typeof(GrabbableObject), nameof(GrabbableObject.PlayDropSFX))]
         [HarmonyPrefix]
         private static void GrabbableFallSnowPatch(GrabbableObject __instance)
         {
             SnowTrackersManager.PlayFootprintTracker(__instance, TrackerType.Item, !__instance.isInFactory);
         }
 
-        [HarmonyPatch(typeof(Shovel), "ReelUpSFXClientRpc")]
+        [HarmonyPatch(typeof(Shovel), nameof(Shovel.ReelUpSFXClientRpc))]
         [HarmonyPrefix]
         private static void ShovelSnowPatch(Shovel __instance)
         {
@@ -439,7 +440,7 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        [HarmonyPatch(typeof(StartOfRound), "EndOfGame")]
+        [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.EndOfGame))]
         [HarmonyPrefix]
         [HarmonyPriority(Priority.First)]
         private static void RestoreBeesSnowPatch(StartOfRound __instance)

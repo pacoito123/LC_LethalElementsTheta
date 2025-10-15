@@ -21,7 +21,7 @@ namespace VoxxWeatherPlugin.Patches
         internal static bool DrainBatteryInFacility => LESettings.DrainBatteryInFacility.Value;
         internal static bool DoorMalfunctionEnabled => LESettings.DoorMalfunctionEnabled.Value;
 
-        [HarmonyPatch(typeof(PlayerVoiceIngameSettings), "OnDisable")]
+        [HarmonyPatch(typeof(PlayerVoiceIngameSettings), nameof(PlayerVoiceIngameSettings.OnDisable))]
         [HarmonyPrefix]
         private static void FilterCacheCleanerPatch(PlayerVoiceIngameSettings __instance)
         {
@@ -31,14 +31,14 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        [HarmonyPatch(typeof(StartOfRound), "UpdatePlayerVoiceEffects")]
+        [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.UpdatePlayerVoiceEffects))]
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> VoiceDistorterPatch(IEnumerable<CodeInstruction> instructions)
         {
             CodeMatcher codeMatcher = new CodeMatcher(instructions).MatchForward(false,
                 new(OpCodes.Stloc_S),
                 new(OpCodes.Ldloc_1),
-                new(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), "isPlayerDead")),
+                new(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.isPlayerDead))),
                 new(OpCodes.Brfalse))
             .Advance(1);
 
@@ -53,7 +53,7 @@ namespace VoxxWeatherPlugin.Patches
                 : instructions;
         }
 
-        [HarmonyPatch(typeof(GrabbableObject), "Update")]
+        [HarmonyPatch(typeof(GrabbableObject), nameof(GrabbableObject.Update))]
         [HarmonyPrefix]
         private static void GrabbableDischargePatch(GrabbableObject __instance)
         {
@@ -70,7 +70,7 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        [HarmonyPatch(typeof(HUDManager), "UseSignalTranslatorClientRpc")]
+        [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.UseSignalTranslatorClientRpc))]
         [HarmonyPrefix]
         private static void SignalTranslatorDistortionPatch(ref string signalMessage)
         {
@@ -92,7 +92,7 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        [HarmonyPatch(typeof(ShipTeleporter), "beamUpPlayer", MethodType.Enumerator)]
+        [HarmonyPatch(typeof(ShipTeleporter), nameof(ShipTeleporter.beamUpPlayer), MethodType.Enumerator)]
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> TeleporterDistortionTranspiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -152,7 +152,7 @@ namespace VoxxWeatherPlugin.Patches
             }
         }
 
-        [HarmonyPatch(typeof(TerminalAccessibleObject), "CallFunctionFromTerminal")]
+        [HarmonyPatch(typeof(TerminalAccessibleObject), nameof(TerminalAccessibleObject.CallFunctionFromTerminal))]
         [HarmonyPrefix]
         private static bool DoorTerminalBlocker(TerminalAccessibleObject __instance)
         {
@@ -167,7 +167,7 @@ namespace VoxxWeatherPlugin.Patches
             return true;
         }
 
-        [HarmonyPatch(typeof(RadarBoosterItem), "EnableRadarBooster")]
+        [HarmonyPatch(typeof(RadarBoosterItem), nameof(RadarBoosterItem.EnableRadarBooster))]
         [HarmonyPrefix]
         private static void SignalBoosterPrefix(RadarBoosterItem __instance, ref bool enable)
         {
@@ -229,14 +229,14 @@ namespace VoxxWeatherPlugin.Patches
     [HarmonyPatch]
     internal sealed class FlareOptionalWalkiePatches
     {
-        [HarmonyPatch(typeof(WalkieTalkie), "Start")]
+        [HarmonyPatch(typeof(WalkieTalkie), nameof(WalkieTalkie.Start))]
         [HarmonyPrefix]
         private static void WalkieDistortionPatch(WalkieTalkie __instance)
         {
             _ = __instance.gameObject.AddComponent<WalkieDistortionManager>();
         }
 
-        [HarmonyPatch(typeof(WalkieTalkie), "TimeAllAudioSources")]
+        [HarmonyPatch(typeof(WalkieTalkie), nameof(WalkieTalkie.TimeAllAudioSources))]
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> RadioDistorterPatch(IEnumerable<CodeInstruction> instructions)
         {

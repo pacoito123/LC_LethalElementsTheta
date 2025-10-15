@@ -17,7 +17,7 @@ namespace VoxxWeatherPlugin.Patches
 
         private static float damageTimer;
 
-        [HarmonyPatch(typeof(PlayerControllerB), "LateUpdate")]
+        [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.LateUpdate))]
         [HarmonyPostfix]
         private static void PoisoningPatchPrefix(PlayerControllerB __instance)
         {
