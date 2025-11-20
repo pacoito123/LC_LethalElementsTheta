@@ -26,6 +26,7 @@ namespace VoxxWeatherPlugin.Compatibility
         private static readonly string snowOverlayColorTag = "voxxSnowOverlayColor";
         private static readonly string blizzardFogColorTag = "voxxBlizzardFogColor";
         private static readonly string blizzardCrystalsColorTag = "voxxBlizzardCrystalsColor";
+        private static readonly string dontFreezeMyWaterTag = "voxxDontFreezeMyWater";
         private static readonly string toxicFumesColorTag = "voxxToxicFumesColor";
         private static readonly string toxicFogColorTag = "voxxToxicFogColor";
 
@@ -60,7 +61,13 @@ namespace VoxxWeatherPlugin.Compatibility
             }
 
             LevelManipulator.Instance.SetSnowColor(snowColor, overlayColor, fogColor, crystalsColor);
+        }
 
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static bool ShouldPreventWaterFreeze()
+        {
+            return LevelManipulator.Instance != null && LevelManager.CurrentExtendedLevel != null
+                && LevelManager.CurrentExtendedLevel.TryGetTag(dontFreezeMyWaterTag);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]

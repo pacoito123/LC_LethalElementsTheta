@@ -754,7 +754,8 @@ namespace VoxxWeatherPlugin.Behaviours
                 BakeSnowMasks();
             }
 
-            FreezeWater();
+            if (!LLLCompat.Enabled || !LLLCompat.ShouldPreventWaterFreeze())
+                FreezeWater();
 
             IsSnowReady = true;
             SnowPatches.RemoveEnemiesSnow();
