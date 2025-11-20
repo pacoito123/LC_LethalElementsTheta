@@ -12,6 +12,7 @@ using VoxxWeatherPlugin.Behaviours;
 using VoxxWeatherPlugin.Compatibility;
 
 using static VoxxWeatherPlugin.VoxxWeatherPlugin;
+using VoxxWeatherPlugin.Utils;
 
 namespace VoxxWeatherPlugin.Weathers
 {
@@ -156,7 +157,7 @@ namespace VoxxWeatherPlugin.Weathers
 
         private static IEnumerator DisplayTipDelayed(string title, string message, float delay)
         {
-            yield return new WaitForSeconds(delay);
+            yield return Yielders.WaitForSeconds(delay);
             HUDManager.Instance.DisplayTip(title, message);
         }
 
@@ -327,7 +328,7 @@ namespace VoxxWeatherPlugin.Weathers
             if (malfunctionData.StaticParticles != null)
                 malfunctionData.StaticParticles.Play();
 
-            yield return new WaitForSeconds(malfunctionData.MalfunctionDuration);
+            yield return Yielders.WaitForSeconds(malfunctionData.MalfunctionDuration);
 
             if (malfunctionData.malfunctionObject is RadMechAI radMechAI)
             {
@@ -344,7 +345,7 @@ namespace VoxxWeatherPlugin.Weathers
                 {
                     _ = (turret as IHittable).Hit(1, Vector3.down);
                 }
-                yield return new WaitForSeconds(2f); // Wait a bit so turret's mode will sync up 
+                yield return Yielders.WaitForSeconds(2f); // Wait a bit so turret's mode will sync up 
                 yield return new WaitUntil(() => turret.turretMode != TurretMode.Berserk);
                 if (malfunctionData.StaticParticles != null)
                     malfunctionData.StaticParticles.Stop();
@@ -367,7 +368,7 @@ namespace VoxxWeatherPlugin.Weathers
                         NetworkObjectReference radMechNetworkReference = RoundManager.Instance.SpawnEnemyGameObject(nestPosition, nestAngle, -1, radMechType);
                         RoundManager.Instance.currentOutsideEnemyPower += radMechType.PowerLevel;
                     }
-                    yield return new WaitForSeconds(2f); // Wait a bit to sync up
+                    yield return Yielders.WaitForSeconds(2f); // Wait a bit to sync up
                     radMechType.nestSpawnPrefab = radMechNestPrefab;
                     _ = electricMalfunctionData.Remove(radMechNest);
                 }
@@ -607,7 +608,7 @@ namespace VoxxWeatherPlugin.Weathers
 
             if (delay > 0)
             {
-                yield return new WaitForSeconds(delay);
+                yield return Yielders.WaitForSeconds(delay);
             }
 
             if (fadeIn)

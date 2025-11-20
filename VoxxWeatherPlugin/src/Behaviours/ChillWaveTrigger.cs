@@ -24,19 +24,19 @@ namespace VoxxWeatherPlugin.Behaviours
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("Player"))
+            if (other.TryGetComponent(out PlayerControllerB player))
             {
-                PlayerControllerB playerController = other.gameObject.GetComponent<PlayerControllerB>();
-                if (playerController != GameNetworkManager.Instance.localPlayerController || collidedWithLocalPlayer || playerController.isInsideFactory)
+                if (player != GameNetworkManager.Instance.localPlayerController || collidedWithLocalPlayer || player.isInsideFactory)
                     return;
+
                 if (PlayerEffectsManager.isInColdZone)
                 {
                     temperatureChangeCoroutine ??= StartCoroutine(TemperatureChangeCoroutine());
                     if (WaveDamage > 0)
                     {
-                        playerController.DamagePlayer(WaveDamage, causeOfDeath: CauseOfDeath.Unknown);
+                        player.DamagePlayer(WaveDamage, causeOfDeath: CauseOfDeath.Unknown);
                     }
-                    playerController.externalForceAutoFade += transform.forward * waveForce;
+                    player.externalForceAutoFade += transform.forward * waveForce;
                     if (BlizzardWeather.Instance != null)
                     {
                         BlizzardVFXManager? blizzardVFX = BlizzardWeather.Instance.VFXManager;

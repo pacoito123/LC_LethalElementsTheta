@@ -28,7 +28,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
         private void Update()
         {
-            if (!IsServer) return;
+            if (!IsHost) return;
 
             if (isInHeatwave && vehicleController.ignitionStarted)
             {
@@ -80,7 +80,7 @@ namespace VoxxWeatherPlugin.Behaviours
             {
                 AudioClip turbulenceSound = vehicleController.turbulenceAudio.clip;
                 vehicleController.engineAudio1.PlayOneShot(turbulenceSound, 1f);
-                yield return new WaitForSeconds(turbulenceSound.length);
+                yield return Yielders.WaitForSeconds(turbulenceSound.length);
             }
         }
     }

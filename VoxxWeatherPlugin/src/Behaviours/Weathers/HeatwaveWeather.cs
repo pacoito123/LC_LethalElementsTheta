@@ -69,11 +69,9 @@ namespace VoxxWeatherPlugin.Weathers
 
         private void OnTriggerStay(Collider other)
         {
-            if (other.CompareTag("Player"))
+            if (other.TryGetComponent(out PlayerControllerB player))
             {
-                PlayerControllerB playerController = other.gameObject.GetComponent<PlayerControllerB>();
-
-                if (playerController != GameNetworkManager.Instance.localPlayerController)
+                if (player != GameNetworkManager.Instance.localPlayerController)
                     return;
 
                 PlayerEffectsManager.isInHeatZone = true;
@@ -89,11 +87,9 @@ namespace VoxxWeatherPlugin.Weathers
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.CompareTag("Player"))
+            if (other.TryGetComponent(out PlayerControllerB player))
             {
-                PlayerControllerB playerController = other.gameObject.GetComponent<PlayerControllerB>();
-
-                if (playerController != GameNetworkManager.Instance.localPlayerController)
+                if (player != GameNetworkManager.Instance.localPlayerController)
                     return;
 
                 PlayerEffectsManager.heatTransferRate = 1f;

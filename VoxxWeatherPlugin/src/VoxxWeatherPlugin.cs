@@ -66,7 +66,7 @@ namespace VoxxWeatherPlugin
                 if (LESettings.EnableBlizzardWeather.Value || LESettings.EnableSnowfallWeather.Value)
                 {
                     Harmony.PatchAll(typeof(SnowPatches));
-                    // harmony.PatchAll(typeof(SnowPatchesOptional));
+                    // Harmony.PatchAll(typeof(SnowPatchesOptional));
                     Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} snow patches successfully applied!");
 
                     if (LESettings.EnableSnowfallWeather.Value)

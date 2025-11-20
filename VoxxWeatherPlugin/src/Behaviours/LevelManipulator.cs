@@ -232,9 +232,11 @@ namespace VoxxWeatherPlugin.Behaviours
             Debug.LogDebug($"Depth camera position: {levelDepthmapCamera.transform.position}, Size: {levelDepthmapCamera.orthographicSize}, Barycenter: {levelBounds.center}");
         }
 
+        private static readonly WaitUntil waitUntilShipLanded = new(() => StartOfRound.Instance != null && StartOfRound.Instance.shipHasLanded);
+
         internal IEnumerator RefreshDepthmapOnLanding()
         {
-            yield return new WaitUntil(() => StartOfRound.Instance.shipHasLanded);
+            yield return waitUntilShipLanded;
 
             BakeDepth();
         }

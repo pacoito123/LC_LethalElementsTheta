@@ -329,6 +329,7 @@ namespace VoxxWeatherPlugin.Weathers
         }
     }
 
+    [RequireComponent(typeof(AudioSource))]
     public class BlizzardVFXManager : SnowfallVFXManager
     {
         [Header("Blizzard Effects")]

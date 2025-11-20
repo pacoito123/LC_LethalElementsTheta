@@ -14,7 +14,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
         internal void StartMalfunction(ElectricMalfunctionData malfunctionData)
         {
-            if (IsServer)
+            if (IsHost)
             {
                 if (malfunctionData.malfunctionObject is EnemyAINestSpawnObject radMechNest)
                 {

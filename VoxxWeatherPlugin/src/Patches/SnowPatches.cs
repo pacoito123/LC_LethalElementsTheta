@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection.Emit;
-using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering.HighDefinition;
@@ -207,7 +206,7 @@ namespace VoxxWeatherPlugin.Patches
         {
             if (IsSnowActive() && SnowThicknessManager.Instance != null)
             {
-                SnowThicknessManager.Instance!.feetPositionY = hit.point.y;
+                SnowThicknessManager.Instance.feetPositionY = hit.point.y;
             }
         }
 
@@ -215,17 +214,14 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPrefix]
         private static void EnemyGroundSamplerPatch(EnemyAI __instance)
         {
-            if (SnowAffectsEnemies &&
-                __instance.IsOwner &&
-                IsSnowActive() &&
-                __instance.isOutside)
+            if (__instance.isOutside && __instance.IsHost && SnowAffectsEnemies && IsSnowActive()
+                && SnowThicknessManager.Instance != null)
             {
                 // Check if enemy is affected by snow hindrance
                 if (!unaffectedEnemyTypes.Contains(__instance.GetType()))
                 {
-                    if (Physics.Raycast(__instance.transform.position, -Vector3.up, out __instance.raycastHit, 6f,
-                        StartOfRound.Instance.walkableSurfacesMask, QueryTriggerInteraction.Ignore)
-                            && SnowThicknessManager.Instance != null)
+                    if (Physics.Raycast(__instance.serverPosition, -Vector3.up, out __instance.raycastHit, 6f,
+                        StartOfRound.Instance.walkableSurfacesMask, QueryTriggerInteraction.Ignore))
                     {
                         SnowThicknessManager.Instance.UpdateEntityData(__instance, __instance.raycastHit);
                     }
@@ -236,12 +232,10 @@ namespace VoxxWeatherPlugin.Patches
         //Generic patch for all enemies, we patch manually since each derived enemy type overrides the base implementation
         private static void EnemySnowHindrancePatch(EnemyAI __instance)
         {
-            if (SnowAffectsEnemies &&
-                __instance.IsOwner &&
-                IsSnowActive() &&
-                __instance.isOutside)
+            if (__instance.isOutside && __instance.IsHost && SnowAffectsEnemies && IsSnowActive()
+                && SnowThicknessManager.Instance != null)
             {
-                float snowThickness = SnowThicknessManager.Instance!.GetSnowThickness(__instance);
+                float snowThickness = SnowThicknessManager.Instance.GetSnowThickness(__instance);
                 // Slow down if the entity in snow (only if snow thickness is above 0.4, caps at 2.5 height)
                 float snowMovementHindranceMultiplier = 1 + (5 * Mathf.Clamp01((snowThickness - 0.4f) / 2.1f));
 

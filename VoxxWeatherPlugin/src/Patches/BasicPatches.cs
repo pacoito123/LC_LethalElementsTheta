@@ -31,7 +31,7 @@ namespace VoxxWeatherPlugin.Patches
         [HarmonyPostfix]
         private static void SpawnNetworkHandler()
         {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            if (NetworkManager.Singleton.IsHost)
             {
                 if (WeatherTypeLoader.weatherSynchronizerPrefab != null)
                 {

@@ -136,7 +136,7 @@ namespace VoxxWeatherPlugin.Behaviours
 
             if (LevelManipulator.Instance.levelDepthmap == null || LevelManipulator.Instance.snowTracksMap == null)
             {
-                Debug.LogWarning(" Attempt to call with uninitialized textures. Skipping the call to avoid errors");
+                Debug.LogWarning("Attempt to call with uninitialized textures. Skipping the call to avoid errors");
             }
 
             if (shaderPasses == null)
@@ -199,8 +199,8 @@ namespace VoxxWeatherPlugin.Behaviours
             material.SetFloat(SnowfallShaderIDs.BaseTessellationFactor, LevelManipulator.BaseTessellationFactor);
             material.SetFloat(SnowfallShaderIDs.MaxTessellationFactor, LevelManipulator.MaxTessellationFactor);
             material.SetInt(SnowfallShaderIDs.isAdaptiveTessellation, LevelManipulator.IsAdaptiveTessellation);
-            // material.SetFloat(SnowfallShaderIDs.ShadowBias, SnowfallWeather.Instance!.shadowBias);
-            // material.SetFloat(SnowfallShaderIDs.SnowOcclusionBias, SnowfallWeather.Instance!.snowOcclusionBias);
+            // material.SetFloat(SnowfallShaderIDs.ShadowBias, LevelManipulator.Instance.shadowBias);
+            // material.SetFloat(SnowfallShaderIDs.SnowOcclusionBias, LevelManipulator.Instance.snowOcclusionBias);
         }
 
         internal void RefreshSnowMaterial(Material? material)
@@ -210,9 +210,10 @@ namespace VoxxWeatherPlugin.Behaviours
                 return;
             }
             // material.SetFloat(SnowfallShaderIDs.FadeValue, fadeValue);
+
             float intensityFactor = material == snowOverlayMaterial ? 0.5f : 1f;
             material.SetFloat(SnowfallShaderIDs.SnowNoisePower, LevelManipulator.Instance.snowIntensity * intensityFactor);
-            material.SetTexture(SnowfallShaderIDs.DepthTex, LevelManipulator.Instance!.levelDepthmap);
+            material.SetTexture(SnowfallShaderIDs.DepthTex, LevelManipulator.Instance.levelDepthmap);
             material.SetTexture(SnowfallShaderIDs.FootprintsTex, LevelManipulator.Instance.snowTracksMap);
             material.SetMatrix(SnowfallShaderIDs.FootprintsViewProjection, LevelManipulator.Instance.tracksWorldToClipMatrix ?? Matrix4x4.identity);
             material.SetMatrix(SnowfallShaderIDs.LightViewProjection, LevelManipulator.Instance.depthWorldToClipMatrix ?? Matrix4x4.identity);
@@ -228,13 +229,9 @@ namespace VoxxWeatherPlugin.Behaviours
 
         internal void RefreshSnowMaterial(List<Material>? materials)
         {
-            if (materials?.Count == 0)
+            for (int i = 0; i < materials?.Count; i++)
             {
-                return;
-            }
-            foreach (Material material in materials!)
-            {
-                RefreshSnowMaterial(material);
+                RefreshSnowMaterial(materials[i]);
             }
         }
 
