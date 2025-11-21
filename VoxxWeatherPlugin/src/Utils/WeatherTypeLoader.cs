@@ -1,6 +1,7 @@
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.VFX;
 using VoxxWeatherPlugin.Weathers;
@@ -181,6 +182,9 @@ namespace VoxxWeatherPlugin.Utils
             GameObject effectObject = blizzardVFXManager.gameObject;
             effectObject.SetActive(false);
 
+            // Add dynamic sky override to fix snow lighting issues.
+            ModifyFrostyFilter(effectObject);
+
             blizzardWeatherController.VFXManager = blizzardVFXManager;
 
             // Fix broken references (WHY, UNITY, WHY)
@@ -251,7 +255,6 @@ namespace VoxxWeatherPlugin.Utils
             blizzardWeatherController.WeatherDefinition = BlizzardWeatherType;
             WeatherManager.RegisterWeather(BlizzardWeatherType);
             Debug.Log($"{PluginInfo.PLUGIN_GUID}: Blizzard weather registered!");
-
         }
 
         public static void RegisterSnowfallWeather()
@@ -277,6 +280,9 @@ namespace VoxxWeatherPlugin.Utils
             GameObject effectObject = snowfallVFXManager.gameObject;
             effectObject.SetActive(false);
 
+            // Add dynamic sky override to fix snow lighting issues.
+            ModifyFrostyFilter(effectObject);
+
             snowfallWeatherController.VFXManager = snowfallVFXManager;
 
             VisualEffectAsset? snowVFXAsset = LESettings.snowVfxLighting.Value ?
@@ -288,7 +294,6 @@ namespace VoxxWeatherPlugin.Utils
                 Debug.LogError("Failed to load Snowfall Weather visual assets. Weather registration failed.");
                 return;
             }
-
 
             VisualEffect snowVFX = snowfallVFXManager.snowVFXContainer!.GetComponent<VisualEffect>();
             snowVFX.visualEffectAsset = snowVFXAsset;
@@ -325,7 +330,26 @@ namespace VoxxWeatherPlugin.Utils
             snowfallWeatherController.WeatherDefinition = SnowfallWeatherEffect;
             WeatherManager.RegisterWeather(SnowfallWeatherEffect);
             Debug.Log($"{PluginInfo.PLUGIN_GUID}: Snowfall weather registered!");
+        }
 
+        private static void ModifyFrostyFilter(GameObject vfxManager)
+        {
+            Transform? frostyFilter = vfxManager.transform.Find("FrostyFilter");
+            if (frostyFilter == null || !frostyFilter.TryGetComponent(out Volume frostyVolume) || frostyVolume.sharedProfile == null)
+            {
+                Debug.LogWarning("Could not find frosty volume filter, snow will look oddly dark.");
+                return;
+            }
+
+            frostyVolume.priority = 10; // Upped from a value of 2, so it's not overridden by Stormy volumes (typically a priority of 3).
+            if (!frostyVolume.sharedProfile.Has<VisualEnvironment>())
+            {
+                // I know not why, I know not how; light returneth to snow beneath a sky of the dynamic kind.
+                VisualEnvironment dynamicSky = frostyVolume.sharedProfile.Add<VisualEnvironment>();
+                dynamicSky.skyAmbientMode = new(SkyAmbientMode.Dynamic, overrideState: true);
+                // dynamicSky.displayName = "Visual Environment"; // (They forgor to put this in the VisualEnvironment constructor...)
+                dynamicSky.name = "Visual Environment";
+            }
         }
 
         public static bool LoadLevelManipulator()
