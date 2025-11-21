@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using UnityEngine;
 using WeatherRegistry;
 using WeatherTweaks.Definitions;
 
@@ -33,12 +34,19 @@ namespace VoxxWeatherPlugin.Compatibility
                 return;
             }
 
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("zigzag.combinedweatherstoolkit"))
+            {
+                Debug.LogDebug("Registering custom combined and progressing weathers through CombinedWeathersToolkit, for it is loaded.");
+                IsWeatherRegistered = true;
+                return;
+            }
+
             if (LESettings.EnableSolarFlareWeather.Value)
             {
                 _ = new CombinedWeatherType("Eclipsed Flare", [
                     new WeatherNameResolvable("solarflare"), new WeatherTypeResolvable(LevelWeatherType.Eclipsed)])
                 {
-                    Color = new(159.0f, 29.0f, 53.0f)
+                    Color = new Color32(159, 29, 53, 255) // Vivid Burgundy - #9F1D35
                 };
 
                 if (LESettings.EnableSnowfallWeather.Value)
@@ -46,7 +54,7 @@ namespace VoxxWeatherPlugin.Compatibility
                     _ = new CombinedWeatherType("Aurora Borealis", [
                         new WeatherNameResolvable("solarflare"), new WeatherNameResolvable("snowfall")])
                     {
-                        Color = new(159.0f, 0.0f, 255.0f)
+                        Color = new Color32(159, 0, 255, 255) // Hex Vivid Violet - #9F00FF
                     };
                 }
 
@@ -55,7 +63,7 @@ namespace VoxxWeatherPlugin.Compatibility
                     _ = new ProgressingWeatherType("Solar Flare > Heatwave", new WeatherNameResolvable("solarflare"), [
                         new ProgressingWeatherEntry() { DayTime = 0.6f, Chance = 1.0f, Weather = new WeatherNameResolvable("heatwave") }])
                     {
-                        Color = new(253.0f, 94.0f, 83.0f)
+                        Color = new Color32(255, 64, 64, 255) // Brown1 - #FF4040
                     };
                 }
             }
@@ -66,45 +74,12 @@ namespace VoxxWeatherPlugin.Compatibility
                     new ProgressingWeatherEntry() { DayTime = 0.5f, Chance = 0.75f, Weather = new WeatherTypeResolvable(LevelWeatherType.Rainy) },
                     new ProgressingWeatherEntry() { DayTime = 0.75f, Chance = 1.0f, Weather = new WeatherTypeResolvable(LevelWeatherType.Rainy) }])
                 {
-                    Color = new(135.0f, 206.0f, 235.0f)
+                    Color = new Color32(135, 206, 235, 255) // SkyBlue - #87CEEB
                 };
-
-                /* if (ConfigHelper.ResolveStringToWeather("hallowed") != null)
-                {
-                    _ = new CombinedWeatherType("Hall-snowed", [
-                        new WeatherNameResolvable("snowfall"), new WeatherNameResolvable("hallowed")])
-                    {
-                        Color = new(204.0f, 204.0f, 255.0f)
-                    };
-                } */
             }
 
-            /* if (LESettings.EnableBlizzardWeather.Value)
-            {
-                if (ConfigHelper.ResolveStringToWeather("forsaken") != null)
-                {
-                    _ = new CombinedWeatherType("Forsaken Blizzard", [
-                        new WeatherNameResolvable("blizzard"), new WeatherNameResolvable("forsaken")])
-                    {
-                        Color = new(0.0f, 33.0f, 71.0f)
-                    };
-                }
-            }
-
-            if (LESettings.EnableToxicSmogWeather.Value)
-            {
-                if (ConfigHelper.ResolveStringToWeather("hurricane") != null)
-                {
-                    _ = new CombinedWeatherType("Toxic Hurricane", [
-                        new WeatherNameResolvable("toxicsmog"), new WeatherNameResolvable("hurricane")])
-                    {
-                        Color = new(107.0f, 142.0f, 35.0f)
-                    };
-                }
-            } */
-
-            IsWeatherRegistered = true;
             Debug.LogDebug("Registered custom combined and progressing weathers!");
+            IsWeatherRegistered = true;
         }
     }
 }

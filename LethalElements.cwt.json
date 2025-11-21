@@ -1,0 +1,80 @@
+{
+    "eclipsed_flare": {
+        "type": "Combined",
+        "name": "Eclipsed Flare",
+        "color": "#9F1D35",
+        "weathers": [
+            "Eclipsed",
+            "Solar Flare"
+        ]
+    },
+    "aurora_borealis": {
+        "type": "Combined",
+        "name": "Aurora Borealis",
+        "color": "#9F00FF",
+        "weathers": [
+            "Solar Flare",
+            "Snowfall"
+        ]
+    },
+    "hallsnowed": {
+        "type": "Combined",
+        "name": "Hallsnowed",
+        "color": "#5946B2",
+        "weathers": [
+            "Snowfall",
+            "Hallowed"
+        ]
+    },
+    "forsaken_cold": {
+        "type": "Combined",
+        "name": "Forsaken Cold",
+        "color": "#32174D",
+        "weathers": [
+            "Blizzard",
+            "Forsaken"
+        ]
+    },
+    "toxic_hurricane": {
+        "type": "Combined",
+        "name": "Toxic Hurricane",
+        "color": "#6B8E23",
+        "weathers": [
+            "Toxic Smog",
+            "Hurricane"
+        ]
+    },
+    "solarflare_to_heatwave": {
+        "type": "Progressing",
+        "name": "Solar Flare > Heatwave",
+        "color": "#FF4040",
+        "progressing_times": [
+            0.6
+        ],
+        "progressing_chances": [
+            1
+        ],
+        "weathers": [
+            "Solar Flare",
+            "Heatwave"
+        ]
+    },
+    "snowfall_to_rainy": {
+        "type": "Progressing",
+        "name": "Snowfall > Rainy",
+        "color": "#87CEEB",
+        "progressing_times": [
+            0.5,
+            0.75
+        ],
+        "progressing_chances": [
+            0.75,
+            1
+        ],
+        "weathers": [
+            "Snowfall",
+            "Rainy",
+            "Rainy"
+        ]
+    }
+}
