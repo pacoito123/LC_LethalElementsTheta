@@ -360,6 +360,12 @@ namespace VoxxWeatherPlugin.Utils
                 dynamicSky.skyAmbientMode = new(SkyAmbientMode.Dynamic, overrideState: true);
                 // dynamicSky.displayName = "Visual Environment"; // (They forgor to put this in the VisualEnvironment constructor...)
                 dynamicSky.name = "Visual Environment";
+
+                if (!frostyVolume.HasInstantiatedProfile())
+                {
+                    // Magical getter call that actually applies the profile override...
+                    _ = frostyVolume.profile;
+                }
             }
         }
 
