@@ -6,7 +6,6 @@ using static VoxxWeatherPlugin.VoxxWeatherPlugin;
 
 namespace VoxxWeatherPlugin.Behaviours
 {
-    [RequireComponent(typeof(AudioSource))]
     public class InterferenceDistortionFilter : MonoBehaviour
     {
         [SerializeField, Range(0f, 1f)] internal float noiseLevel = 0.005f;

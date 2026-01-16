@@ -329,7 +329,6 @@ namespace VoxxWeatherPlugin.Weathers
         }
     }
 
-    [RequireComponent(typeof(AudioSource))]
     public class BlizzardVFXManager : SnowfallVFXManager
     {
         [Header("Blizzard Effects")]
@@ -347,8 +346,10 @@ namespace VoxxWeatherPlugin.Weathers
         internal override void Start()
         {
             base.Start();
-            blizzardSFXPlayer = GetComponent<AudioSource>();
-            blizzardSFXPlayer.spatialBlend = 0; // 2D sound
+            if (TryGetComponent(out blizzardSFXPlayer))
+            {
+                blizzardSFXPlayer!.spatialBlend = 0; // 2D sound
+            }
             if (snowVFXContainer != null)
             {
                 blizzardCollisionCamera = snowVFXContainer.GetComponentInChildren<Camera>();

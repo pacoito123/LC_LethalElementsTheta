@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.3] - 2026-01-16
+
+### Small compatibility fix
+
+#### Fixes
+
+- Fixed `Snowfall` and `Blizzard` compatibility with [DawnLib](https://thunderstore.io/c/lethal-company/p/TeamXiaolan/DawnLib)'s custom footsteps.
+
 ## [1.3.2] - 2025-11-26
 
 ### Snow lighting fix, Heatwave changes
