@@ -62,29 +62,41 @@ namespace VoxxWeatherPlugin.Patches
 
         [HarmonyPatch(typeof(PlayerControllerB), nameof(PlayerControllerB.GetCurrentMaterialStandingOn))]
         [HarmonyTranspiler]
-        private static IEnumerable<CodeInstruction> GroundSamplingTranspiler(IEnumerable<CodeInstruction> instructions)
+        [HarmonyPriority(Priority.Last)]
+        private static IEnumerable<CodeInstruction> GroundSamplingTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            CodeMatcher codeMatcher = new CodeMatcher(instructions).MatchForward(false,
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.interactRay))),
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.hit))),
-                new CodeMatch(OpCodes.Ldc_R4), // 6f
-                new CodeMatch(OpCodes.Call, AccessTools.PropertyGetter(typeof(StartOfRound), nameof(StartOfRound.Instance))),
-                new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(StartOfRound), nameof(StartOfRound.walkableSurfacesMask)))
+            CodeMatcher codeMatcher = new CodeMatcher(instructions, generator).MatchForward(useEnd: true,
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldfld, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.interactRay))),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldflda, AccessTools.Field(typeof(PlayerControllerB), nameof(PlayerControllerB.hit))),
+                new(OpCodes.Ldc_R4), // 6f
+                new(OpCodes.Call, AccessTools.PropertyGetter(typeof(StartOfRound), nameof(StartOfRound.Instance))),
+                new(OpCodes.Ldfld, AccessTools.Field(typeof(StartOfRound), nameof(StartOfRound.walkableSurfacesMask))),
+                new(OpCodes.Ldc_I4_1),
+                new(OpCodes.Call, AccessTools.Method(typeof(Physics), nameof(Physics.Raycast), [typeof(Ray), typeof(RaycastHit).MakeByRefType(), typeof(float), typeof(int), typeof(QueryTriggerInteraction)])),
+                new(OpCodes.Brfalse)
             );
 
-            if (codeMatcher.IsInvalid)
+            if (codeMatcher.Advance(1).IsInvalid)
             {
                 Debug.LogError("Failed to match code in GroundSamplingTranspiler");
                 return instructions;
             }
 
-            _ = codeMatcher.RemoveInstructions(20)
-            .InsertAndAdvance(
+            _ = codeMatcher.CreateLabel(out Label noFootstepOverride)
+            .Insert(
                 new(OpCodes.Ldarg_0),
-                new(OpCodes.Call, AccessTools.Method(typeof(SnowPatches), nameof(SurfaceSamplingOverride)))
+                new(OpCodes.Call, AccessTools.Method(typeof(SnowPatches), nameof(SurfaceSamplingOverride))),
+                new(OpCodes.Brfalse, noFootstepOverride),
+                new(OpCodes.Ret)
             );
+
+            if (codeMatcher.IsInvalid)
+            {
+                Debug.LogError("Failed to patch snow thickness in GroundSamplingTranspiler");
+                return instructions;
+            }
 
             Debug.Log("Patched PlayerControllerB.GetCurrentMaterialStandingOn to include snow thickness!");
             return codeMatcher.InstructionEnumeration();
@@ -457,32 +469,31 @@ namespace VoxxWeatherPlugin.Patches
 
         private static bool SurfaceSamplingOverride(PlayerControllerB playerScript)
         {
-            bool isOnGround = Physics.Raycast(playerScript.interactRay, out playerScript.hit, 6f, StartOfRound.Instance.walkableSurfacesMask, QueryTriggerInteraction.Ignore);
-            bool isSameSurface = !isOnGround || playerScript.hit.collider.CompareTag(StartOfRound.Instance.footstepSurfaces[playerScript.currentFootstepSurfaceIndex].surfaceTag);
-            bool snowOverride = false;
-
-            if (!IsSnowActive() || !(LevelManipulator.Instance != null && LevelManipulator.Instance.IsSnowReady))
+            // Don't override footstep sounds if the vanilla snow footstep index was not found, or some components are missing.
+            if (SnowfallVFXManager.snowFootstepIndex == -1 || LevelManipulator.Instance == null || SnowThicknessManager.Instance == null)
             {
-                return !isOnGround || isSameSurface;
+                return false;
             }
 
-            if (SnowThicknessManager.Instance != null && isOnGround)
+            // Don't override footstep sounds if snow isn't both active and ready.
+            if (!IsSnowActive() || !LevelManipulator.Instance.IsSnowReady)
             {
-                // TODO for the local player update data in PlayerControllerB.CalculateGroundNormal
-                SnowThicknessManager.Instance.UpdateEntityData(playerScript, playerScript.hit);
-
-                // Override footstep sound if snow is thick enough
-                if (SnowfallVFXManager.snowFootstepIndex != -1 &&
-                    SnowThicknessManager.Instance.IsEntityOnNaturalGround(playerScript) &&
-                     SnowThicknessManager.Instance.GetSnowThickness(playerScript) > 0.1f // offset is not applied here for nonlocal player so they would produce normal footstep sounds at edge cases
-                    )
-                {
-                    snowOverride = true;
-                    playerScript.currentFootstepSurfaceIndex = SnowfallVFXManager.snowFootstepIndex;
-                }
+                return false;
             }
 
-            return !isOnGround || isSameSurface || snowOverride;
+            // TODO for the local player update data in PlayerControllerB.CalculateGroundNormal
+            SnowThicknessManager.Instance.UpdateEntityData(playerScript, playerScript.hit);
+
+            // Don't override footstep sounds if the player isn't standing on snow, or the snow isn't thick enough.
+            if (!SnowThicknessManager.Instance.IsEntityOnNaturalGround(playerScript)
+                || SnowThicknessManager.Instance.GetSnowThickness(playerScript) <= 0.1f) // offset is not applied here for nonlocal player so they would produce normal footstep sounds at edge cases
+            {
+                return false;
+            }
+
+            // Override footstep sounds if the snow is thick enough.
+            playerScript.currentFootstepSurfaceIndex = SnowfallVFXManager.snowFootstepIndex;
+            return true;
         }
 
         private static void LocalGroundUpdate(PlayerControllerB playerScript, int index)
