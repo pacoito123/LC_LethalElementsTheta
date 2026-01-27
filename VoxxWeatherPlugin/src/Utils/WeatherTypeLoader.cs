@@ -77,7 +77,7 @@ namespace VoxxWeatherPlugin.Utils
                         "Row", "Court", "Dreg", "Confiscation", "Solidarity", "Brutality", "Burrow", "Collateral", "Humidity", "Hydro", "Integrity", "Vaporization", "Vertigo", "Rorm",
                         "Kronodile", "Malice", "EGypt", "EchoReach", "Orion", "RelayStation", "Aquatis", "Detritus", "Argent", "Sierra", "BlackMesa", "Pelagia", "Vacuity", "Vulcan9", "Ganimedes",
                         "$Beach", "$Canyon", "$Desert", "$Volcanic", "$Warm"]),
-                    FilteringOption = new(FilteringOption.Include),
+                    FilteringOption = new(true),
                     ScrapAmountMultiplier = new(0.85f),
                     ScrapValueMultiplier = new(1.15f),
                     LevelWeights = new(["Assurance@120", "Offense@75", "Embrion@50", "Artifice@100", "$Volcanic@150", "$Canyon@100", "$Desert@100",
@@ -148,7 +148,7 @@ namespace VoxxWeatherPlugin.Utils
                 Config =
                 {
                     LevelFilters = new(["Gordion", "Galetry"]),
-                    FilteringOption = new(FilteringOption.Exclude),
+                    FilteringOption = new(false),
                     ScrapAmountMultiplier = new(1.25f),
                     ScrapValueMultiplier = new(0.95f),
                     LevelWeights = new(["Arcadia@200", "Embrion@200", "Summit@300", "Incalescence@125", "Sierra@350",
@@ -255,7 +255,7 @@ namespace VoxxWeatherPlugin.Utils
                         "Rorm", "Starship13", "Kronodile", "Malice", "EGypt", "EchoReach", "Orion", "RelayStation", "AtlasAbyss", "Aquatis", "Detritus", "CaltPrime", "Argent",
                         "Sierra", "BlackMesa", "Pelagia", "Zeranos", "Vacuity", "Vulcan9", "Ganimedes",
                         "$Desert", "$Beach", "$Volcanic", "$Warm"]),
-                    FilteringOption = new(FilteringOption.Exclude),
+                    FilteringOption = new(false),
                     ScrapAmountMultiplier = new(0.9f),
                     ScrapValueMultiplier = new(1.15f),
                     LevelWeights = new(["Artifice@200", "Polarus@200", "$Tundra@120", "$Snow@120", "$Cold@75"]),
@@ -333,7 +333,7 @@ namespace VoxxWeatherPlugin.Utils
                         "Rorm", "Starship13", "Kronodile", "Malice", "EGypt", "EchoReach", "Orion", "RelayStation", "AtlasAbyss", "Aquatis", "Detritus", "CaltPrime", "Argent",
                         "Sierra", "BlackMesa", "Pelagia", "Zeranos", "Vacuity", "Vulcan9", "Ganimedes",
                         "$Desert", "$Beach", "$Volcanic", "$Warm"]),
-                    FilteringOption = new(FilteringOption.Exclude),
+                    FilteringOption = new(false),
                     ScrapAmountMultiplier = new(0.85f),
                     ScrapValueMultiplier = new(1.2f),
                     LevelWeights = new(["Artifice@300", "Polarus@300", "Vow@100", "Rockwell@200",
@@ -480,7 +480,7 @@ namespace VoxxWeatherPlugin.Utils
                 Config =
                 {
                     LevelFilters = new(["Gordion", "Derelict", "Galetry", "Elasticity"]),
-                    FilteringOption = new(FilteringOption.Exclude),
+                    FilteringOption = new(false),
                     ScrapAmountMultiplier = new(1.3f),
                     ScrapValueMultiplier = new(0.8f),
                     LevelWeights = new(["FissionC@300", "Makron@300", "Asteroid13@150", "Collateral@150", "Quasara@200",
