@@ -344,7 +344,7 @@ namespace VoxxWeatherPlugin.Utils
             }
             // Copy the texture to a new Texture2D
             Texture2D newTex = new(tex.width, tex.height, tex.format, tex.mipmapCount > 1);
-            newTex.SetPixels(tex.GetPixels());
+            newTex.SetPixels32(tex.GetPixels32());
             newTex.Apply();
             byte[] bytes = ImageConversion.EncodeToPNG(tex);
             File.WriteAllBytes(filePath, bytes);

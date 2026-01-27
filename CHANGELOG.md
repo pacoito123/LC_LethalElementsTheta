@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.4] - 2026-01-26
+
+### Another small compatibility fix
+
+#### Fixes
+
+- Fixed compatibility with **EVIL** (Experimental) [WeatherRegistry](https://thunderstore.io/c/lethal-company/p/mrov/EXPERIMENTALWeatherRegistry) and [WeatherTweaks](https://thunderstore.io/c/lethal-company/p/mrov/EXPERIMENTALWeatherTweaks).
+  - Both stable and experimental branches should work with this version.
+  - Doesn't use any of the fancy new gradient stuff just yet, but it won't error out on launch.
+- Fixed compatibility with [Diversity](https://thunderstore.io/c/lethal-company/p/IntegrityChaos/Diversity), if `SnowAffectsEnemies` is enabled.
+
 ## [1.3.3] - 2026-01-16
 
 ### Small compatibility fix

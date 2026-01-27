@@ -298,7 +298,7 @@ namespace VoxxWeatherPlugin.Weathers
 
             Quaternion randomRotation = Quaternion.Euler(0, SeededRandom?.Next(0, 360) ?? 0f, 0);
             // Spawn a Christmas tree
-            _ = Instantiate(christmasTreePrefab!, treePosition, randomRotation);
+            _ = Instantiate(christmasTreePrefab, treePosition, randomRotation);
 
             // Only host can spawn the presents
             if (!GameNetworkManager.Instance.isHostingGame)

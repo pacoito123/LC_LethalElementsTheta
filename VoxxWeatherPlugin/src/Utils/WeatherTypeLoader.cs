@@ -15,7 +15,7 @@ namespace VoxxWeatherPlugin.Utils
     public class WeatherTypeLoader
     {
         internal static string bundleName = "voxxweather.assetbundle";
-        internal static GameObject? weatherSynchronizerPrefab = null!;
+        internal static GameObject? weatherSynchronizerPrefab;
 
         public static void RegisterHeatwaveWeather()
         {
@@ -57,7 +57,7 @@ namespace VoxxWeatherPlugin.Utils
                 return;
             }
 
-            VisualEffect heatwaveVFX = heatwaveVFXManager.heatwaveParticlePrefab!.GetComponent<VisualEffect>();
+            VisualEffect heatwaveVFX = heatwaveVFXManager.heatwaveParticlePrefab.GetComponent<VisualEffect>();
             heatwaveVFX.visualEffectAsset = heatwaveVFXAsset;
 
             // Configure VFX settings

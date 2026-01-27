@@ -106,7 +106,7 @@ namespace VoxxWeatherPlugin.Weathers
             }
 
             // To keep the chill waves less frequent than the wind changes
-            if (timeSinceWave >= waveInterval && SeededRandom!.NextDouble() < 0.5f)
+            if (timeSinceWave >= waveInterval && SeededRandom.NextDouble() < 0.5f)
             {
                 chillWaveCoroutine = StartCoroutine(GenerateChillWaveCoroutine());
                 return;

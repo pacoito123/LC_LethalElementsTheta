@@ -55,7 +55,7 @@ namespace VoxxWeatherPlugin.Patches
             }
             else
             {
-                PlayerEffectsManager.SetPlayerTemperature(Time.deltaTime / HeatwaveWeather.Instance!.timeInHeatZoneMax * HeatwaveWeather.Instance!.timeOfDayFactor);
+                PlayerEffectsManager.SetPlayerTemperature(Time.deltaTime / HeatwaveWeather.Instance.timeInHeatZoneMax * HeatwaveWeather.Instance.timeOfDayFactor);
             }
 
             float severity = PlayerEffectsManager.HeatSeverity;

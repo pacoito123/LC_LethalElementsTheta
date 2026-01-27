@@ -69,7 +69,7 @@ namespace VoxxWeatherPlugin.Utils
             {
                 return;
             }
-            float newWeight = Mathf.Clamp01(underSnowVolume!.weight + (weightDelta / underSnowFadeSpeed));
+            float newWeight = Mathf.Clamp01(underSnowVolume.weight + (weightDelta / underSnowFadeSpeed));
             underSnowVolume.weight = newWeight * UnderSnowVisualMultiplier;
         }
     }
