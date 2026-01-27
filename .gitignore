@@ -71,3 +71,5 @@ crashlytics-build.properties
 VoxxWeatherPlugin/bin/
 VoxxWeatherPlugin/obj/
 VoxxWeatherPlugin/libs/
+VoxxWeatherPlugin/dist/*
+*.assetbundle

@@ -1,0 +1,48 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "pacoito"
+name = "LethalElementsTheta"
+description = "[v73] A mod that adds five new weather effects! (Fork of LethalElementsBeta)"
+websiteUrl = "https://discord.com/channels/1168655651455639582/1268919667347427390"
+containsNsfwContent = false
+
+[package.dependencies]
+BepInEx-BepInExPack = "5.4.2304"
+Evaisa-FixPluginTypesSerialization = "1.1.4"
+Hamunii-AutoHookGenPatcher = "1.0.9"
+mrov-WeatherRegistry = "0.7.5"
+v0xx-TerraMesh  = "1.2.0"
+
+[build]
+icon = "./icon.png"
+readme = "./README.md"
+outdir = "./VoxxWeatherPlugin/dist"
+
+[[build.copy]]
+source = "./VoxxWeatherPlugin/bin/Release/netstandard2.1/voxx.LethalElementsPlugin.dll"
+target = "./VoxxWeatherPlugin/plugins/"
+
+[[build.copy]]
+source = "./LethalElements.cwt.json"
+target = "./VoxxWeatherPlugin/plugins/"
+
+[[build.copy]]
+source = "./voxxweather.assetbundle"
+target = "./VoxxWeatherPlugin/plugins/"
+
+[[build.copy]]
+source = "./CHANGELOG.md"
+target = "./"
+
+[[build.copy]]
+source = "./LICENSE"
+target = "./"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = [ "lethal-company" ]
+
+[publish.categories]
+lethal-company = [ "mods", "bepinex", "weather" ]
