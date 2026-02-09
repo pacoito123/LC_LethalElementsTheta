@@ -49,7 +49,7 @@
         <PackageReference Include="LethalCompany.GameLibs.Steam" Version="73.0.0-ngd.0" PrivateAssets="all" />
         <PackageReference Include="IAmBatby.LethalLevelLoader" Version="1.4.*" PrivateAssets="all" />
         <PackageReference Include="mrov.MrovLib" Version="0.4.*" PrivateAssets="all" />
-        <PackageReference Include="mrov.WeatherRegistry" Version="0.7.*" PrivateAssets="all" />
+        <PackageReference Include="mrov.WeatherRegistry" Version="0.8.*" PrivateAssets="all" />
 
         <PackageReference Include="Zaggy1024-OpenBodyCams" Version="3.0.*" PrivateAssets="all" />
         <PackageReference Include="v0xx-TerraMesh" Version="1.2.*" PrivateAssets="all" />

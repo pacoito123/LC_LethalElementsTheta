@@ -66,9 +66,8 @@ namespace VoxxWeatherPlugin.Utils
 
             heatwaveContainer.SetActive(true);
 
-            Weather HeatwaveWeather = new("Heatwave", new(effectObject, effectPermanentObject) { SunAnimatorBool = "" })
+            Weather heatwaveWeather = new("Heatwave", new(effectObject, effectPermanentObject) { SunAnimatorBool = "" })
             {
-                Color = new Color32(255, 56, 0, 255), // Coquelicot - #FF3800
                 Config =
                 {
                     LevelFilters = new(["Assurance", "Offense", "Embrion", "Artifice", "Alcatras", "Atlantica", "Asteroid13", "Berunah", "Core",
@@ -87,9 +86,11 @@ namespace VoxxWeatherPlugin.Utils
                     DefaultWeight = new(50),
                 },
             };
+            heatwaveWeather.CreateColorGradient(TMPro.ColorMode.HorizontalGradient,
+                topLeft: new(255, 56, 0, 255), topRight: new(255, g: 184, 0, 255)); // Coquelicot - #FF3800, #FFB800
 
-            heatwaveWeatherController.WeatherDefinition = HeatwaveWeather;
-            WeatherManager.RegisterWeather(HeatwaveWeather);
+            heatwaveWeatherController.WeatherDefinition = heatwaveWeather;
+            WeatherManager.RegisterWeather(heatwaveWeather);
             Debug.Log($"{PluginInfo.PLUGIN_GUID}: Heatwave weather registered!");
         }
 
@@ -142,9 +143,8 @@ namespace VoxxWeatherPlugin.Utils
 
             flareContainer.SetActive(true);
 
-            Weather FlareWeather = new("Solar Flare", new(effectObject, effectPermanentObject) { SunAnimatorBool = "" })
+            Weather flareWeather = new("Solar Flare", new(effectObject, effectPermanentObject) { SunAnimatorBool = "" })
             {
-                Color = Color.yellow,
                 Config =
                 {
                     LevelFilters = new(["Gordion", "Galetry"]),
@@ -157,9 +157,11 @@ namespace VoxxWeatherPlugin.Utils
                     DefaultWeight = new(60),
                 },
             };
+            flareWeather.CreateColorGradient(TMPro.ColorMode.HorizontalGradient,
+                topLeft: new(237, 145, 33, 255), topRight: new(244, 189, 121, 255)); // Carrot Orange - #ED9121, #F4BD79
 
-            flareWeatherController.WeatherDefinition = FlareWeather;
-            WeatherManager.RegisterWeather(FlareWeather);
+            flareWeatherController.WeatherDefinition = flareWeather;
+            WeatherManager.RegisterWeather(flareWeather);
             Debug.Log($"{PluginInfo.PLUGIN_GUID}: Solar flare weather registered!");
         }
 
@@ -241,9 +243,8 @@ namespace VoxxWeatherPlugin.Utils
                 SunAnimatorBool = "overcast",
             };
 
-            Weather BlizzardWeatherType = new("Blizzard", blizzardWeatherEffect)
+            Weather blizzardWeather = new("Blizzard", blizzardWeatherEffect)
             {
-                Color = new Color32(0, 112, 255, 255), // Brandeis Blue - #0070FF
                 Config =
                 {
                     LevelFilters = new(["Gordion", "Galetry", "Assurance", "Embrion", "Acidir", "Alcatras", "Atlantica", "Asteroid13",
@@ -264,9 +265,11 @@ namespace VoxxWeatherPlugin.Utils
                     DefaultWeight = new(50),
                 },
             };
+            blizzardWeather.CreateColorGradient(TMPro.ColorMode.VerticalGradient,
+                topLeft: new(0, 112, 255, 255), bottomLeft: new(0, 67, 153, 255)); // Brandeis Blue - #0070FF, #004399
 
-            blizzardWeatherController.WeatherDefinition = BlizzardWeatherType;
-            WeatherManager.RegisterWeather(BlizzardWeatherType);
+            blizzardWeatherController.WeatherDefinition = blizzardWeather;
+            WeatherManager.RegisterWeather(blizzardWeather);
             Debug.Log($"{PluginInfo.PLUGIN_GUID}: Blizzard weather registered!");
         }
 
@@ -319,9 +322,8 @@ namespace VoxxWeatherPlugin.Utils
                 SunAnimatorBool = "overcast",
             };
 
-            Weather SnowfallWeatherEffect = new("Snowfall", snowyWeatherEffect)
+            Weather snowfallWeather = new("Snowfall", snowyWeatherEffect)
             {
-                Color = new Color32(224, 255, 255, 255), // LightCyan1 - #E0FFFF
                 Config =
                 {
                     LevelFilters = new(["Gordion", "Galetry", "Assurance", "Embrion", "Acidir", "Alcatras", "Atlantica", "Asteroid13",
@@ -343,9 +345,11 @@ namespace VoxxWeatherPlugin.Utils
                     DefaultWeight = new(60),
                 },
             };
+            snowfallWeather.CreateColorGradient(TMPro.ColorMode.VerticalGradient,
+                topLeft: new(224, 255, 255, 255), bottomLeft: new(112, 127, 127, 255)); // LightCyan1 - #E0FFFF, #707F7F
 
-            snowfallWeatherController.WeatherDefinition = SnowfallWeatherEffect;
-            WeatherManager.RegisterWeather(SnowfallWeatherEffect);
+            snowfallWeatherController.WeatherDefinition = snowfallWeather;
+            WeatherManager.RegisterWeather(snowfallWeather);
             Debug.Log($"{PluginInfo.PLUGIN_GUID}: Snowfall weather registered!");
         }
 
@@ -474,9 +478,8 @@ namespace VoxxWeatherPlugin.Utils
 
             toxicSmogContainer.SetActive(true);
 
-            Weather ToxicSmogWeatherEffect = new("Toxic Smog", new(effectObject, effectPermanentObject) { SunAnimatorBool = "" })
+            Weather toxicSmogWeather = new("Toxic Smog", new(effectObject, effectPermanentObject) { SunAnimatorBool = "" })
             {
-                Color = new(0.413f, 0.589f, 0.210f), // dark lime green
                 Config =
                 {
                     LevelFilters = new(["Gordion", "Derelict", "Galetry", "Elasticity"]),
@@ -490,11 +493,13 @@ namespace VoxxWeatherPlugin.Utils
                     DefaultWeight = new(80),
                 },
             };
+            toxicSmogWeather.CreateColorGradient(TMPro.ColorMode.FourCornersGradient,
+                new(173, 255, 47, 255), new(69, 102, 18, 255), // GreenYellow - #ADFF2F, #456612
+                new(103, 153, 28, 255), bottomRight: new(34, 51, 9, 64)); // #67991C, #223309
 
-            toxicSmogWeatherController.WeatherDefinition = ToxicSmogWeatherEffect;
-            WeatherManager.RegisterWeather(ToxicSmogWeatherEffect);
+            toxicSmogWeatherController.WeatherDefinition = toxicSmogWeather;
+            WeatherManager.RegisterWeather(toxicSmogWeather);
             Debug.Log($"{PluginInfo.PLUGIN_GUID}: Toxic Smog weather registered!");
-
         }
     }
 }

@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Threading.Tasks;
+using TMPro;
+using Unity.AI.Navigation;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Unity.Netcode;
-using System.Collections;
-using System.Threading.Tasks;
-using Unity.AI.Navigation;
-using System.IO;
-using System.Globalization;
+using VoxxWeatherPlugin.Compatibility;
+using WeatherRegistry;
 
 namespace VoxxWeatherPlugin.Utils
 {
@@ -349,6 +352,24 @@ namespace VoxxWeatherPlugin.Utils
             byte[] bytes = ImageConversion.EncodeToPNG(tex);
             File.WriteAllBytes(filePath, bytes);
             Object.Destroy(newTex);
+        }
+
+        public static void CreateColorGradient(this Weather weather, ColorMode colorMode, Color32 topLeft = default, Color32 topRight = default, Color32 bottomLeft = default, Color32 bottomRight = default)
+        {
+            if (WeatherRegistryCompat.IsLegacyWR)
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                weather.Color = topLeft;
+#pragma warning restore CS0618 // Type or member is obsolete
+                return;
+            }
+            TMP_ColorGradient colorGradient = ScriptableObject.CreateInstance<TMP_ColorGradient>();
+            colorGradient.colorMode = colorMode;
+            colorGradient.topLeft = topLeft;
+            colorGradient.topRight = topRight;
+            colorGradient.bottomLeft = bottomLeft;
+            colorGradient.bottomRight = bottomRight;
+            WeatherRegistryCompat.SetColorGradient(weather, colorGradient);
         }
     }
 }

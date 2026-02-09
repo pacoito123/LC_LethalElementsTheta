@@ -86,15 +86,9 @@ namespace VoxxWeatherPlugin
                     Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} enemy snow hindrance patches successfully applied!");
                 }
 
-                // Delayed registering of the combined weathers for WeatherTweaks compatibility
-                WeatherRegistry.EventManager.BeforeSetupStart.AddListener(() =>
-                {
-                    if (WeatherTweaksCompat.Enabled)
-                    {
-                        Logger.LogDebug("Weather Tweaks detected!");
-                        WeatherTweaksCompat.RegisterCombinedWeathers();
-                    }
-                });
+                // Compatibility patches:
+                Harmony.PatchAll(typeof(WeatherTweaksCompat));
+                // ...
 
                 Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
             }
