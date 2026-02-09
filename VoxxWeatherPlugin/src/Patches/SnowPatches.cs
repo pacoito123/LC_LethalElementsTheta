@@ -550,7 +550,7 @@ namespace VoxxWeatherPlugin.Patches
                 new(OpCodes.Ldarg_1), // renderGraph
                 new(OpCodes.Ldarg_2), // hdCamera
                 new(OpCodes.Ldarg_3), // colorBuffer
-                new(OpCodes.Ldarg_S), // normalBuffer 
+                new(OpCodes.Ldarg_S), // normalBuffer
                 new(OpCodes.Ldarg_S), // prepassOutput
                 new(OpCodes.Ldfld),
                 new(OpCodes.Call, AccessTools.Method(typeof(HDRenderPipeline), "RenderUnderWaterVolume")),

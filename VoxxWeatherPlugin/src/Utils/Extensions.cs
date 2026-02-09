@@ -152,7 +152,7 @@ namespace VoxxWeatherPlugin.Utils
 #if DEBUG
             string assemblyPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             maskLayer.SaveToFile(Path.Combine(assemblyPath, $"mask_{objectToBake.name}.png"));
-#endif        
+#endif
 
             RenderTexture.active = currentRT;
 

@@ -13,7 +13,7 @@ namespace VoxxWeatherPlugin.Weathers
     internal sealed class BlizzardWeather : SnowfallWeather
     {
         public static new BlizzardWeather? Instance { get; internal set; }
-        // Overrides   
+        // Overrides
         internal override float MinSnowHeight => LESettings.minSnowHeightBlizzard.Value;
         internal override float MaxSnowHeight => LESettings.maxSnowHeightBlizzard.Value;
         internal override float MinSnowNormalizedTime => LESettings.minTimeToFullSnowBlizzard.Value;

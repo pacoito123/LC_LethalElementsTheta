@@ -395,7 +395,7 @@ namespace VoxxWeatherPlugin.Utils
 
             LevelManipulator levelManipulatorController = levelManipulator.GetComponent<LevelManipulator>();
 
-            //Create a dictionary of the snowfall VFX variants                                
+            //Create a dictionary of the snowfall VFX variants
             string[] keys = ["footprintsTrackerVFX", "lowcapFootprintsTrackerVFX", "itemTrackerVFX", "shovelVFX"];
             LevelManipulator.snowTrackersDict = keys.Zip(levelManipulatorController.footprintsTrackerVFX,
                                                             (k, v) => new { k, v })

@@ -73,7 +73,7 @@ namespace VoxxWeatherPlugin.Weathers
         internal TerminalAccessibleObject[]? bigDoors;
 
         internal static float TurretMalfunctionDelay => LESettings.TurretMalfunctionDelay.Value; // 4
-        internal static float RadMechReactivateDelay => LESettings.RadMechReactivateDelay.Value; // 7 
+        internal static float RadMechReactivateDelay => LESettings.RadMechReactivateDelay.Value; // 7
         internal static float RadMechStunDuration => LESettings.RadMechStunDuration.Value; //4
         internal static float TurretMalfunctionChance => LESettings.TurretMalfunctionChance.Value;
         internal static float RadMechReactivationChance => LESettings.RadMechReactivationChance.Value;
@@ -345,7 +345,7 @@ namespace VoxxWeatherPlugin.Weathers
                 {
                     _ = (turret as IHittable).Hit(1, Vector3.down);
                 }
-                yield return Yielders.WaitForSeconds(2f); // Wait a bit so turret's mode will sync up 
+                yield return Yielders.WaitForSeconds(2f); // Wait a bit so turret's mode will sync up
                 yield return new WaitUntil(() => turret.turretMode != TurretMode.Berserk);
                 if (malfunctionData.StaticParticles != null)
                     malfunctionData.StaticParticles.Stop();

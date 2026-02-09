@@ -6,7 +6,7 @@ namespace VoxxWeatherPlugin.Weathers
 {
     public abstract class BaseWeather : MonoBehaviour
     {
-        //Define the weather type (from the WeatherRegistry) 
+        //Define the weather type (from the WeatherRegistry)
         public Weather WeatherDefinition { get; internal set; } = null!;
         public bool IsActive => (gameObject.activeInHierarchy && enabled) ||
                                 ((StartOfRound.Instance == null || !StartOfRound.Instance.inShipPhase) && // To prevent weather counted as activated in orbit

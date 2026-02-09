@@ -346,7 +346,7 @@ namespace VoxxWeatherPlugin.Behaviours
             // Copy the hit data for debugging
             RaycastHit hitCopy = hit;
             entityHitData[entity] = hitCopy;
-#endif 
+#endif
         }
 
         /// <summary>
@@ -440,5 +440,4 @@ namespace VoxxWeatherPlugin.Behaviours
         }
     }
 }
-
 
