@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.5] - 2026-02-09
+
+### Waiter! Waiter! More compatibility, please
+
+#### Fixes
+
+- Fixed compatibility (again) with **EVIL** [WeatherRegistry](https://thunderstore.io/c/lethal-company/p/mrov/EXPERIMENTALWeatherRegistry) and [WeatherTweaks](https://thunderstore.io/c/lethal-company/p/mrov/EXPERIMENTALWeatherTweaks), now on the main branch!
+  - Added gradient colors for all the different weathers, if using `v0.8.0` and above.
+  - Should be backwards-compatible with `v0.7.5`, too.
+
 ## [1.3.4] - 2026-01-26
 
 ### Another small compatibility fix

@@ -86,8 +86,8 @@ namespace VoxxWeatherPlugin.Utils
                     DefaultWeight = new(50),
                 },
             };
-            heatwaveWeather.CreateColorGradient(TMPro.ColorMode.HorizontalGradient,
-                topLeft: new(255, 56, 0, 255), topRight: new(255, g: 184, 0, 255)); // Coquelicot - #FF3800, #FFB800
+            heatwaveWeather.CreateColorGradient(TMPro.ColorMode.VerticalGradient,
+                topLeft: new(255, 0, 71, 255), bottomLeft: new(255, g: 191, 0, 255)); // Coquelicot - #FF3800, Amber - #FFBF00
 
             heatwaveWeatherController.WeatherDefinition = heatwaveWeather;
             WeatherManager.RegisterWeather(heatwaveWeather);
